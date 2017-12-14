@@ -1,2 +1,7 @@
 # data
-The `dev` directory is contains reduced versions of the data files to be used for local development.  When code is functional, it may be run on the cluster with the paths to the real data used in place of this `/data/dev` path.
+
+The `cluster/` directory contains all data (input) files needed for this repository.  (In some cases, they may be copied in from other locations, so they are all contained here, but will not cause code to break if it relies on different paths.)
+
+_**Note:** The `cluster/` directory is ignored by git, so these files are not exposed on github._
+
+The `dev/` directory is contains reduced versions of the data files to be used for local development.  When code is functional, it may be run on the cluster with the paths to the real data used in place of this `/data/dev` path.

@@ -1,8 +1,15 @@
 # OS
+#---------------------------
 .DS_Store
 *~
 
 # Python/Jupyter
+#---------------------------
 *.pyc
 __pycache__
 .ipynb_checkpoints/
+
+
+# Directories
+#---------------------------
+cluster/
