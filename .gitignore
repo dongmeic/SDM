@@ -2,6 +2,7 @@
 .DS_Store
 *~
 
-# Python
+# Python/Jupyter
 *.pyc
 __pycache__
+.ipynb_checkpoints/
