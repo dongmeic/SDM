@@ -1,0 +1,2 @@
+# data
+The `dev` directory is contains reduced versions of the data files to be used for local development.  When code is functional, it may be run on the cluster with the paths to the real data used in place of this `/data/dev` path.
