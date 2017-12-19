@@ -1,0 +1,50 @@
+PREP
+  preprocess.py.ipynb
+  * Generalize side selection in 
+  * Add window shifting to split_data_internal()
+  * Convert to preprocess.py and refactor
+
+  clean_dataset.py.ipynb
+  * eliminate redundant rows and columns from input data
+  * merge all years into common file
+  * allow selection by year range and spatial range
+  * Convert to .py
+
+  transform_data.ipynb
+  * convert .csv format to 3D tensor (x, y, time)
+  
+
+
+MODELS
+  * Logisitic Regression (= GLM with binomial link function)
+    eda.R    
+    * EDA for potential parameter transformations and interactions terms
+    logistic.py
+    * Lasso (L1 regularization)
+    * Ridge (L2 regularization)
+
+  tree.py
+  * Classification Trees
+    * Ensemble method (Random forests, AdaBoost, bagging, etc)
+
+  nn.py
+  * Feed-Forward Neural Network
+
+  conv_nn.py
+  * Convolutional Neural Net
+
+  rnn.py (if time allows??)
+  * Convoutional + Recurrent Neural Net
+
+  model_utils.py
+  * Analytics to compare model predictions (ROC-AUC, accuracy, F2-score, etc)
+
+  * Initial Predictions
+
+
+UNCERTAINTY ANALYSES
+  * Simulate uncertainty in data -- Montecarlo resampling 
+  
+
+
+SHELL SCRIPTING
