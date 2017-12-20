@@ -70,3 +70,38 @@ def column2matrix(df, column, cell_dim=10000):
         matrix[i, j] = value
 
         return matrix                                                    
+
+
+def drop_redundant_columns(df):
+    '''
+    Removes columns with identical information from dataframe <df>
+
+    Args:
+    df: DataFrame: the data to be cleaned
+
+    Returns: DataFrame with redundandat columns removed
+    '''
+
+    # Order columns alphabetically
+    sorted_cols = sorted(list(df))
+    df = df[sorted_cols]
+
+    # These columns are not "prefixed"; ignore these
+    solos = ['etopo1', 'lat', 'lon', 'mask', 'srtm30', 'y']
+    redundant = []
+
+    for remainder in unique_remainders:
+        first_instance = No`ne
+        first_instance_name = None
+
+        for col in list(clim):
+            if col not in solos and '_'.join(col.split('_')[1:]) == remainder:
+                if first_instance is None:
+                    first_instance = clim[col]
+                    first_instance_name = col
+                else:
+                    if clim[col].all() == first_instance.all():
+                        redundant.append(col)
+
+    df = df.drop(redundant, axis=1)
+    
