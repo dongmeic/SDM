@@ -187,31 +187,34 @@ def split_data_by_xy_ranges(dat, x_range, y_range):
 
 
 def get_edge_data(dat, n_cells, side):
-        # TODO: generalize to any side
-        if side == 'n':
-            data = dat.copy()
-            cells_in_set = 0
-            next_row = 0
-        while cells_in_set < n_cells:
-            subset = data.iloc[:next_row, :]
-            cells_in_set = subset.shape[0]
-            next_row += 1
-
-        n_subset = subset.shape[0]
-        subset_less_one_row = data.iloc[:(next_row - 1), :]
-        n_subset_less_one = subset_less_one_row.shape[0]
-        subset_diff = np.abs(n_subset - n_cells)
-        subset_less_one_diff = np.abs(n_subset_less_one - n_cells)
+    data = dat.copy()
+    cells_in_set = 0
+    next_row = 0
+    order = ['x', 'y'] if side in ['e', 'w'] else ['y', 'x']
+    ascending = [True, True] if side in ['n', 'w'] else [False, False]
+    data = data.sort_values(order, ascending=ascending)
+    
+    while cells_in_set < n_cells:
+        subset = data.iloc[:next_row, :]
+        cells_in_set = subset.shape[0]
+        next_row += 1
+        
+    n_subset = subset.shape[0]
+    subset_less_one_row = data.iloc[:(next_row - 1), :]
+    n_subset_less_one = subset_less_one_row.shape[0]
+    subset_diff = np.abs(n_subset - n_cells)
+    subset_less_one_diff = np.abs(n_subset_less_one - n_cells)
+    
+    return (subset if subset_diff < subset_less_one_diff
+            else subset_less_one_row)
 
 
 def remove_subset(combined_set, subset, side):
-    # TODO: generalize to any side
-    if side in ['n', 's']:
-        print('subset y: [%d, %d]' % (subset.y.min(), subset.y.max()))
-        subset_y_min, subset_y_max = subset.y.min(), subset.y.max()
-        other_set = combined_set.loc[((combined_set.y < subset_y_min) |
-                                      (combined_set.y > subset_y_max)), :]
-        return other_set
+    ref = 'y' if side in ['n', 's'] else 'x'
+    subset_min, subset_max = subset[ref].min(), subset[ref].max()
+    other_set = combined_set.loc[((combined_set[ref] < subset_min) |
+                                  (combined_set[ref] > subset_max)), :]
+    return other_set
 
     
 
