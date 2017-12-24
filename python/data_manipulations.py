@@ -93,37 +93,42 @@ def drop_redundant_columns(df):
     # Order columns alphabetically
     sorted_cols = sorted(list(df))
     df = df[sorted_cols]
+    col_split = [col.split('_') for col in list(df)]
 
+    # Get names of columns with prefixing removed
+    remainders = ['_'.join(cs[1:]) for cs in col_split]
+    unique_remainders = set(sorted(remainders))
+    
     # These columns are not "prefixed"; ignore these
     solos = ['etopo1', 'lat', 'lon', 'mask', 'srtm30', 'y']
     redundant = []
 
     for remainder in unique_remainders:
-        first_instance = No`ne
+        first_instance = None
         first_instance_name = None
 
-        for col in list(clim):
+        for col in list(df):
             if col not in solos and '_'.join(col.split('_')[1:]) == remainder:
                 if first_instance is None:
-                    first_instance = clim[col]
+                    first_instance = df[col]
                     first_instance_name = col
                 else:
-                    if clim[col].all() == first_instance.all():
+                    if df[col].all() == first_instance.all():
                         redundant.append(col)
 
-    df = df.drop(redundant, axis=1)
+    return df.drop(redundant, axis=1)
     
 
 def get_bounding_box_by_mask_col(
         df, mask_column='btl_mat_msk.2', coord_type='xy'):
 
         assert coord_type in ['xy', 'lon_lat']
-        cols = ['x', 'y'] if coord_type is 'xy' else ['lon', 'lat']
+        cols = ['x', 'y'] if coord_type == 'xy' else ['lon', 'lat']
         dtype = int if coord_type is 'xy' else float
         mask = np.isnan(df[mask_column]) == False
         masked_df = df.loc[mask, cols]
-        x_min, x_max = masked_df.x.min(), masked_df.x.max()
-        y_min, y_max = masked_df.y.min(), masked_df.y.max()
+        x_min, x_max = masked_df['x'].min(), masked_df['x'].max()
+        y_min, y_max = masked_df['y'].min(), masked_df['y'].max()
 
         try:
             lower_left = Point(dtype(x_min), dtype(y_min))
