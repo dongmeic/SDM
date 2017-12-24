@@ -10,6 +10,9 @@ class Point:
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return '(%s, %s)' % (self.x, self.y)
+                    
 
         
 class BoundingBox:
@@ -17,6 +20,11 @@ class BoundingBox:
         assert type(lower_left) is Point and type(upper_right) is Point
         self.lower_left = lower_left
         self.upper_right = upper_right
+
+    def __str__(self):
+        return ('Lower left: %s; Upper right: %s'
+                % (self.lower_left, self.upper_right))
+
 
 
 def restrict_to_bounding_box(data, bounding_box, coord_type='lon_lat'):
@@ -105,3 +113,26 @@ def drop_redundant_columns(df):
 
     df = df.drop(redundant, axis=1)
     
+
+def get_bounding_box_by_mask_col(
+        df, mask_column='btl_mat_msk.2', coord_type='xy'):
+
+        assert coord_type in ['xy', 'lon_lat']
+        cols = ['x', 'y'] if coord_type is 'xy' else ['lon', 'lat']
+        dtype = int if coord_type is 'xy' else float
+        mask = np.isnan(df[mask_column]) == False
+        masked_df = df.loc[mask, cols]
+        x_min, x_max = masked_df.x.min(), masked_df.x.max()
+        y_min, y_max = masked_df.y.min(), masked_df.y.max()
+
+        try:
+            lower_left = Point(dtype(x_min), dtype(y_min))
+            upper_right = Point(dtype(x_max), dtype(y_max))
+            return BoundingBox(lower_left, upper_right)
+        except Exception as e:
+            print('Bad value passed to Point() constructor.  Could not '
+                  'create bounding box.\nx range: [%s, %s]\ny range: [%s, %s]'
+                  % (x_min, x_max, y_min, y_max))
+            print(e)
+            return None
+                                
