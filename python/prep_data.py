@@ -29,7 +29,7 @@
 #   prep_data.py -e ENV -d DATA_PATH [-i INFILE] [-m MASK] [-c COORD_TYPE] \
 #     [-o OUTFILE_PREFIX] [-s SPLIT_METHOD]
 #
-#   -e ENV: ['dev' | 'talapas'] environment to run code in
+#   -e ENV: ['dev' | 'cluster'] environment to run code in
 #   -d DATA_PATH: absolute or relative path to where data files are stored
 #   -i INFILE: name of file from which data are to be read
 #      (defaults to climatic_variables_longlat_var.csv
@@ -73,7 +73,7 @@ def read_input():
     p.add_argument(
         '-e', '--env',
         dest='env',
-        help='["dev" | "talapas"] environment to run code in')
+        help='["dev" | "cluster"] environment to run code in')
     p.add_argument(
         '-d', '--data_path',
         dest='data_path',
@@ -135,8 +135,7 @@ def main(options):
 def parse_args(options):
     env = options.env or ENV
     data_path = options.data_path or DATA_PATH
-    if env == 'dev':
-        data_path += 'dev/'
+    data_path += env + '/'
     infile = options.infile or INFILE
     mask = options.mask or MASK
     coord_type = options.coord_type or COORD_TYPE
