@@ -182,14 +182,19 @@ def reduce_data(data, mask, coord_type):
 
 
 def check_or_make_dirs(data_path):
-    dirs = ['random/', 'internal/', 'edge/', 'edge/n/', 'edge/s/', 'edge/e/',
-            'edge/w/']
+    dirs = [
+        'random', 'internal', 'edge', 'edge/n', 'edge/s', 'edge/e', 'edge/w']
+    
     for d in dirs:
-        if not os.path.exists(data_path + d):
+        try:
             print('Creating directory: ', data_path + d)
             os.makedirs(d)
-        else:
+        except FileExistsError as e:
             print('%s exists' % (data_path + d))
+        except Exception as e:
+            print('Unexpected error in check_or_make_dirs(%s)' % data_path)
+            print(e)
+            sys.exit(1)
     return True
                 
 
