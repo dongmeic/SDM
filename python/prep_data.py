@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+A#!/usr/bin/env python3
 
 #===============================================================================
 #
@@ -200,11 +200,12 @@ def split_and_write_data(
         if method == 'edge':
             sides = ['n', 's', 'e', 'w']
             for side in sides:
-                data_split = split_data(
+                data_split = split.split_data(
                     data, mask, method, cell_dim, proportions, side)
                 write_data(data_split, method, data_path, outfile_prefix, side)
         else:
-            data_split = split_data(data, mask, mehtod, cell_dim, proportions)
+            data_split = split.split_data(
+                data, mask, mehtod, cell_dim, proportions)
             write_data(data_split, method, data_path, outfile_prefix)
 
 
