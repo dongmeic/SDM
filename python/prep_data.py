@@ -148,16 +148,22 @@ def parse_args(options):
         split_method = ['random', 'internal', 'edge']
     else:
         split_method = [split_method]
-
+        
+    linesep()
     print(
         'Running with arguments:\nenv:            %s\ndata_path:      %s'
         '\ninfile:         %s\nmask:           %s\ncoord_type:     %s'
         '\noutfile_prefix: "%s"\nsplit_method:   %s'
         % (env, data_path, infile, mask, coord_type, outfile_prefix,
            split_method))
+    linesep()
     return (
         env, data_path, infile, mask, coord_type, outfile_prefix, split_method)
 
+
+def line_sep():
+    print('_' * 75 + '\n')
+    
 
 def load_data(data_path, infile):
     data = pd.read_csv(data_path + infile)
@@ -182,6 +188,7 @@ def reduce_data(data, mask, coord_type):
 
 
 def check_or_make_dirs(data_path):
+    linesep()
     dirs = [
         'random', 'internal', 'edge', 'edge/n', 'edge/s', 'edge/e', 'edge/w']
     
@@ -210,11 +217,12 @@ def split_and_write_data(
                 write_data(data_split, method, data_path, outfile_prefix, side)
         else:
             data_split = split.split_data(
-                data, mask, mehtod, cell_dim, proportions)
+                data, mask, method, cell_dim, proportions)
             write_data(data_split, method, data_path, outfile_prefix)
 
 
 def write_data(data_split, method, data_path, outfile_prefix, side=''):
+    linesep()
     file_names = [['X_train', 'y_train'],
                   ['X_valid', 'y_valid'],
                   ['X_test', 'y_test']]
