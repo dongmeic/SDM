@@ -59,7 +59,7 @@ def split_data_random(dat, resp, proportions, cell_dim):
     data = dat.copy()
     response = resp.copy()
     train, valid, test = proportions
-    data = convert_data_to_0_base(data)
+    data = convert_data_to_0_base(data, cell_dim)
 
     # Split data into [train, validation_and_test]
     X_train, X_vt, y_train, y_vt = train_test_split(
@@ -84,7 +84,7 @@ def split_data_internal(dat, response, proportions, cell_dim):
     n_train = int(round(n * proportions[0]))
     n_valid = int(round(n * proportions[1]))
     n_test = n - n_train - n_valid
-    data = convert_data_to_0_base(data)
+    data = convert_data_to_0_base(data, cell_dim)
     test_valid_box = get_proportional_internal_block(
         width=data.x.max(), height=data.y.max(), proportion=valid + test)
     x_offset = test_valid_box['x_range'][0]
@@ -114,7 +114,7 @@ def split_data_edge(dat, response, proportions, cell_dim, side):
     n_train = int(round(n * proportions[0]))
     n_valid = int(round(n * proportions[1]))
     n_test = n - n_train - n_valid
-    data = convert_data_to_0_base(data)
+    data = convert_data_to_0_base(data, cell_dim)
     vt_set = get_edge_data(data, n_test + n_valid, side)
     test_set = get_edge_data(vt_set, n_test, side)
     valid_set = remove_subset(vt_set, test_set, side)
@@ -130,7 +130,7 @@ def split_data_edge(dat, response, proportions, cell_dim, side):
 
 
 
-def convert_data_to_0_base(data):
+def convert_data_to_0_base(data, cell_dim):
     data.x = ((data.x - min(data.x)) / cell_dim).astype(int)
     data.y = ((data.y - min(data.y)) / cell_dim).astype(int)
     return data
