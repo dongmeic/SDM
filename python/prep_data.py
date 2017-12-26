@@ -64,6 +64,8 @@ MASK = 'btl_mat_msk.2'
 COORD_TYPE = 'xy'
 OUTFILE_PREFIX = ''
 SPLIT_METHOD = 'all'
+CELL_DIM = 10000 # dimensions of raster cell
+PROPORTIONS = [0.7, 0.15, 0.15] # train, valid, split
 
 
 def read_input():
@@ -115,19 +117,18 @@ def main(options):
 
     print('Loading data from %s%s...' % (data_path, infile))
     data = load_data(data_path, infile)
-    print('Data shape: ', data.shape)
+    data = reduce_data(data, mask, coord_type)
 
-    print('Dropping redundant columns...')
-    data = manip.drop_redundant_columns(data)
-    print('Data shape: ', data.shape)
-    print('x in data:', 'x' in list(data))
+    # Check output directories exist, or create if they do not
+    check_or_make_dirs(data_path)
+    split_and_write_data(data,
+                         mask,
+                         split_method,
+                         CELL_DIM,
+                         PROPORTIONS,
+                         data_path,
+                         outfile_prefix)
 
-    print('Getting bounding box for %s' % mask)
-    bounding_box = manip.get_bounding_box_by_mask_col(data, mask, coord_type)
-    print('Reducing data to region within bounding box...')
-    data = manip.restrict_to_bounding_box(data, bounding_box, coord_type)
-    print('Data shape: ', data.shape)
-    
     elapsed = time() - start_time
     print('Elapsed time %.3f minutes' % (elapsed / 60))
 
@@ -141,6 +142,12 @@ def parse_args(options):
     coord_type = options.coord_type or COORD_TYPE
     outfile_prefix = options.outfile_prefix or OUTFILE_PREFIX
     split_method = options.split_method or SPLIT_METHOD
+
+    if split_method == 'all':
+        split_method = ['random', 'internal', 'edge']
+    else:
+        split_method = [split_method]
+
     print(
         'Running with arguments:\nenv:            %s\ndata_path:      %s'
         '\ninfile:         %s\nmask:           %s\ncoord_type:     %s'
@@ -158,7 +165,68 @@ def load_data(data_path, infile):
     return data
         
 
+def reduce_data(data, mask, coord_type):
+    print('Initial data shape: ', data.shape)
+    print('Dropping redundant columns...')
+    data = manip.drop_redundant_columns(data)
+    print('Data shape: ', data.shape)
+
+    print('Getting bounding box for %s' % mask)
+    bounding_box = manip.get_bounding_box_by_mask_col(data, mask, coord_type)
+
+    print('Reducing data to region within bounding box...')
+    data =  manip.restrict_to_bounding_box(data, bounding_box, coord_type)
+    print('Final data shape:', data.shape)
+    return data
+
+
+def check_or_make_dirs(data_path):
+    dirs = [
+        'random', 'internal', 'edge', 'edge/n', 'edge/s', 'edge/e', 'edge/w']
+    for d in dirs:
+        if not os.path.exists(data_path + d):
+            print('Creating directory: ', data_path + d)
+            os.makedirs(d)
+        else:
+            print('%s exists' % (data_path + d))
+    return True
+                
+
+def split_and_write_data(
+    data, mask, split_method, cell_dim, proportions, data_path, outfile_prefix):
     
+    for method in split_method:
+        if method == 'edge':
+            sides = ['n', 's', 'e', 'w']
+            for side in sides:
+                data_split = split_data(
+                    data, mask, method, cell_dim, proportions, side)
+                write_data(data_split, method, data_path, outfile_prefix, side)
+        else:
+            data_split = split_data(data, mask, mehtod, cell_dim, proportions)
+            write_data(data_split, method, data_path, outfile_prefix)
+
+
+def write_data(data_split, method, data_path, outfile_prefix, side=''):
+    file_names = [['X_train', 'y_train'],
+                  ['X_valid', 'y_valid'],
+                  ['X_test', 'y_test']]
+    side = side + '/' if side else side
+    
+    for data_set in range(len(data_split)):
+        for xy in range(len(data_set)):
+            outpath = ('%s%s/%s%s%s'
+                       % (data_path, method, side, outfile_prefix,
+                          file_names[data_set][xy]))
+            print('Writing file to %s...' % outpath)
+            data_split[data_set][xy].to_csv(outpath, index=False)
+            
+                       
+                        
+    
+            
+
+        
 
 
 if __name__ == '__main__':
