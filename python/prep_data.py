@@ -161,7 +161,7 @@ def parse_args(options):
         env, data_path, infile, mask, coord_type, outfile_prefix, split_method)
 
 
-def line_sep():
+def linesep():
     print('_' * 75 + '\n')
     
 
