@@ -182,8 +182,8 @@ def reduce_data(data, mask, coord_type):
 
 
 def check_or_make_dirs(data_path):
-    dirs = [
-        'random', 'internal', 'edge', 'edge/n', 'edge/s', 'edge/e', 'edge/w']
+    dirs = ['random/', 'internal/', 'edge/', 'edge/n/', 'edge/s/', 'edge/e/',
+            'edge/w/']
     for d in dirs:
         if not os.path.exists(data_path + d):
             print('Creating directory: ', data_path + d)
