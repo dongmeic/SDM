@@ -229,7 +229,7 @@ def write_data(data_split, method, data_path, outfile_prefix, side=''):
     side = side + '/' if side else side
     
     for data_set in range(len(data_split)):
-        for xy in range(len(data_set)):
+        for xy in range(len(data_split[data_set])):
             outpath = ('%s%s/%s%s%s'
                        % (data_path, method, side, outfile_prefix,
                           file_names[data_set][xy]))
