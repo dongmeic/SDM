@@ -3,7 +3,7 @@
 # Loads python3 module, creates necessary directories and runs
 # python/prep_data.py to split data into various train/validation/test sets
 
-ENV='dev'
+ENV='cluster'
 DATA_PATH=./data/
 
 echo Loading python3 module...
