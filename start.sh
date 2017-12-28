@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Loads python3 module, creates necessary directories and runs
+# python/prep_data.py to split data into various train/validation/test sets
+
 ENV='dev'
-DATA_PATH=../data/
+DATA_PATH=./data/
 
 echo Loading python3 module...
 module load python3
@@ -14,7 +17,7 @@ done
     
 
 echo Running prep_data.py...
-./prep_data.py -e $ENV -d $DATA_PATH
+./python/prep_data.py -e $ENV -d $DATA_PATH
 
 echo Contents of $DATA_PATH$ENV
 ls $DATA_PATH$ENV
