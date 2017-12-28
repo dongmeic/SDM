@@ -230,7 +230,7 @@ def write_data(data_split, method, data_path, outfile_prefix, side=''):
     
     for data_set in range(len(data_split)):
         for xy in range(len(data_split[data_set])):
-            outpath = ('%s%s/%s%s%s'
+            outpath = ('%s%s/%s%s%s.csv'
                        % (data_path, method, side, outfile_prefix,
                           file_names[data_set][xy]))
             print('Writing file to %s...' % outpath)
