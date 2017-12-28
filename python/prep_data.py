@@ -120,8 +120,6 @@ def main(options):
     data = load_data(data_path, infile)
     data = reduce_data(data, mask, coord_type)
 
-    # Check output directories exist, or create if they do not
-    check_or_make_dirs(data_path)
     split_and_write_data(data,
                          mask,
                          split_method,
@@ -186,24 +184,6 @@ def reduce_data(data, mask, coord_type):
     print('Final data shape:', data.shape)
     return data
 
-
-def check_or_make_dirs(data_path):
-    linesep()
-    dirs = [
-        'random', 'internal', 'edge', 'edge/n', 'edge/s', 'edge/e', 'edge/w']
-    
-    for d in dirs:
-        try:
-            print('Creating directory: ', data_path + d)
-            os.makedirs(d)
-        except FileExistsError as e:
-            print('%s exists' % (data_path + d))
-        except Exception as e:
-            print('Unexpected error in check_or_make_dirs(%s)' % data_path)
-            print(e)
-            sys.exit(1)
-    return True
-                
 
 def split_and_write_data(
     data, mask, split_method, cell_dim, proportions, data_path, outfile_prefix):
