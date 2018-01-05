@@ -141,14 +141,19 @@ def main(options):
     print('Loading data from %s%s...' % (data_path, infile))
     data = load_data(data_path, infile)
     data = reduce_data(data, mask, coord_type)
+    restructured_outfile = data_path + 'climaticVariablesRestructured.csv'
 
-    split_and_write_data(data,
-                         mask,
-                         split_method,
-                         CELL_DIM,
-                         PROPORTIONS,
-                         data_path,
-                         outfile_prefix)
+    print('Saving restructured data to %s...' % restructured_outfile)
+    data.to_csv(restructured_outfile, index=False)
+
+
+    #split_and_write_data(data,
+    #                     mask,
+    #                     split_method,
+    #                     CELL_DIM,
+    #                     PROPORTIONS,
+    #                     data_path,
+    #                     outfile_prefix)
 
     elapsed = time() - start_time
     print('Elapsed time %.3f minutes' % (elapsed / 60))
@@ -208,10 +213,12 @@ def reduce_data(data, mask, coord_type):
     source_df = data.copy()
 
     for year in range(EARLIEST_YEAR + 1, LATEST_YEAR + 1):
-        df, source_df = make_single_year_dataframe(source_df, year, static_df)
+        df, source_df = manip.make_single_year_dataframe(
+            source_df, year, static_df)
         yearly_dfs.append(df)
 
-    df, _ = make_single_year_dataframe(source_df, EARLIEST_YEAR, static_df)
+    df, _ = manip.make_single_year_dataframe(
+        source_df, EARLIEST_YEAR, static_df)
 
     print('Merging data back together...')
     for df in yearly_dfs:
