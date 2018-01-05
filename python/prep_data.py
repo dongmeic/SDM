@@ -48,6 +48,7 @@
 #===============================================================================
 
 import argparse
+import numpy as np
 import os
 import pandas as pd
 import sys
@@ -61,7 +62,7 @@ import split_data as split
 ENV = 'dev'
 DATA_PATH = '../data/'
 INFILE = 'climatic_variables_longlat_var.csv'
-MASK = 'studyArea'
+MASK = 'mask'
 COORD_TYPE = 'xy'
 OUTFILE_PREFIX = ''
 SPLIT_METHOD = 'all'
@@ -207,7 +208,11 @@ def reduce_data(data, mask, coord_type):
     print('Initial data shape: ', data.shape)
     print('Reducing mask columns...')
     data = manip.reduce_masks(['btl', 'vgt'], data)
-    data = manip.mask_to_binary('mask', data)
+    
+    # Keep only data where <mask> is not NaN
+    print('Reducing to masked area...')
+    data = data.loc[np.isnan(data[mask]) == False, :]
+    print('Current dimensions:', data.shape)
 
     print('Separating static data...')
     static_fields = ['etopo1', 'lat', 'lon', 'mask', 'srtm30', 'x', 'y']
@@ -228,13 +233,13 @@ def reduce_data(data, mask, coord_type):
 
     print('Merging data back together...')
     for df in yearly_dfs:
-        df_out = df.append(df)
+        df_out = df_out.append(df)
 
-    print('Restructured data dimensions:', df.shape)
+    print('Restructured data dimensions:', df_out.shape)
     df_out = df_out.rename(columns=predictor_name_map)
-    print('Head:\n', df.head())
+    print('Head:\n', df_out.head())
     
-    return df
+    return df_out
 
 
 def split_and_write_data(
