@@ -146,6 +146,12 @@ def main(options):
     print('Saving restructured data to %s...' % restructured_outfile)
     data.to_csv(restructured_outfile, index=False)
 
+    # write mini version for testing:
+    mini = data.loc[data.year <= 2002, :]
+    mini_file = data_path + 'climaticVariablesMini.csv'
+
+    print('Saving mini data set to %s...' % mini_file)
+    mini.to_csv(mini_file, index=False)
 
     #split_and_write_data(data,
     #                     mask,
@@ -217,15 +223,15 @@ def reduce_data(data, mask, coord_type):
             source_df, year, static_df)
         yearly_dfs.append(df)
 
-    df, _ = manip.make_single_year_dataframe(
+    df_out, _ = manip.make_single_year_dataframe(
         source_df, EARLIEST_YEAR, static_df)
 
     print('Merging data back together...')
     for df in yearly_dfs:
-        df = df.append(df)
+        df_out = df.append(df)
 
     print('Restructured data dimensions:', df.shape)
-    df = df.rename(columns=predictor_name_map)
+    df_out = df_out.rename(columns=predictor_name_map)
     print('Head:\n', df.head())
     
     return df
