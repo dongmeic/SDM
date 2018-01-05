@@ -61,12 +61,34 @@ import split_data as split
 ENV = 'dev'
 DATA_PATH = '../data/'
 INFILE = 'climatic_variables_longlat_var.csv'
-MASK = 'btl_mat_msk.2'
+MASK = 'studyArea'
 COORD_TYPE = 'xy'
 OUTFILE_PREFIX = ''
 SPLIT_METHOD = 'all'
 CELL_DIM = 10000 # dimensions of raster cell
 PROPORTIONS = [0.7, 0.15, 0.15] # train, valid, split
+EARLIEST_YEAR = 2000
+LATEST_YEAR   = 2014
+
+predictor_name_map = {
+    'cpja_slice_msk': 'precip_JunAug',
+    'cpos_slice_msk': 'precip_OctSep',
+    'gsp_slice_msk':  'precip_growingSeason',
+    'map_slice_msk':  'precip_meanAnnual',
+    'mat_slice_msk':  'meanTemp_Annual',
+    'mta_slice_msk':  'meanTemp_Aug',
+    'mtaa_slice_msk': 'meanTemp_AprAug',
+    'ntj_slice_msk':  'meanMinTemp_Jan',
+    'ntm_slice_msk':  'meanMinTemp_Mar',
+    'nto_slice_msk':  'meanMinTemp_Oct',
+    'ntw_slice_msk':  'meanMinTemp_DecFeb',
+    'pja_slice_msk':  'precipPrevious_JunAug',
+    'pos_slice_msk':  'precipPreious_OctSep',
+    'vgp_slice_msk':  'varPrecip_growingSeason',
+    'xta_slice_msk':  'meanMaxTemp_Aug',
+    'etopo1':         'elev_etopo1',
+    'srtm30':         'elev_srtm30',
+    'mask':           'studyArea'}
 
 
 def read_input():
@@ -172,17 +194,34 @@ def load_data(data_path, infile):
 
 def reduce_data(data, mask, coord_type):
     print('Initial data shape: ', data.shape)
-    print('Dropping redundant columns...')
-    data = manip.drop_redundant_columns(data)
-    print('Data shape: ', data.shape)
+    print('Reducing mask columns...')
+    data = manip.reduce_masks(['btl', 'vgt'], data)
+    data = manip.mask_to_binary('mask', data)
 
-    print('Getting bounding box for %s' % mask)
-    bounding_box = manip.get_bounding_box_by_mask_col(data, mask, coord_type)
+    print('Separating static data...')
+    static_fields = ['etopo1', 'lat', 'lon', 'mask', 'srtm30', 'x', 'y']
+    static_df = data[static_fields]
+    data = data.drop(static_fields, axis=1)
 
-    print('Reducing data to region within bounding box...')
-    data =  manip.restrict_to_bounding_box(data, bounding_box, coord_type)
-    print('Final data shape:', data.shape)
-    return data
+    print('Separating data by year...')
+    yearly_dfs = []
+    source_df = data.copy()
+
+    for year in range(EARLIEST_YEAR + 1, LATEST_YEAR + 1):
+        df, source_df = make_single_year_dataframe(source_df, year, static_df)
+        yearly_dfs.append(df)
+
+    df, _ = make_single_year_dataframe(source_df, EARLIEST_YEAR, static_df)
+
+    print('Merging data back together...')
+    for df in yearly_dfs:
+        df = df.append(df)
+
+    print('Restructured data dimensions:', df.shape)
+    df = df.rename(columns=predictor_name_map)
+    print('Head:\n', df.head())
+    
+    return df
 
 
 def split_and_write_data(
