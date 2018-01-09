@@ -84,7 +84,7 @@ def get_bounding_box_by_mask_col(df, mask_column='beetle', coord_type='xy'):
         assert coord_type in ['xy', 'lon_lat']
         cols = ['x', 'y'] if coord_type == 'xy' else ['lon', 'lat']
         dtype = int if coord_type is 'xy' else float
-        mask = np.isnan(df[mask_column]) == False
+        mask = df[mask_column] == 1
         masked_df = df.loc[mask, cols]
         x_min, x_max = masked_df['x'].min(), masked_df['x'].max()
         y_min, y_max = masked_df['y'].min(), masked_df['y'].max()

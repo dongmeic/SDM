@@ -62,7 +62,7 @@ import split_data as split
 ENV = 'dev'
 DATA_PATH = '../data/'
 INFILE = 'climatic_variables_longlat_var.csv'
-MASK = 'mask'
+MASK = 'beetle'
 COORD_TYPE = 'xy'
 OUTFILE_PREFIX = ''
 SPLIT_METHOD = 'all'
@@ -84,7 +84,7 @@ predictor_name_map = {
     'nto_slice_msk':  'meanMinTemp_Oct',
     'ntw_slice_msk':  'meanMinTemp_DecFeb',
     'pja_slice_msk':  'precipPrevious_JunAug',
-    'pos_slice_msk':  'precipPreious_OctSep',
+    'pos_slice_msk':  'precipPrevious_OctSep',
     'vgp_slice_msk':  'varPrecip_growingSeason',
     'xta_slice_msk':  'meanMaxTemp_Aug',
     'etopo1':         'elev_etopo1',
@@ -148,19 +148,19 @@ def main(options):
     data.to_csv(restructured_outfile, index=False)
 
     # write mini version for testing:
-    mini = data.loc[data.year <= 2002, :]
-    mini_file = data_path + 'climaticVariablesMini.csv'
+    #mini = data.loc[data.year <= 2002, :]
+    #mini_file = data_path + 'climaticVariablesMini.csv'
 
-    print('Saving mini data set to %s...' % mini_file)
-    mini.to_csv(mini_file, index=False)
+    #print('Saving mini data set to %s...' % mini_file)
+    #mini.to_csv(mini_file, index=False)
 
-    #split_and_write_data(data,
-    #                     mask,
-    #                     split_method,
-    #                     CELL_DIM,
-    #                     PROPORTIONS,
-    #                     data_path,
-    #                     outfile_prefix)
+    split_and_write_data(data,
+                         mask,
+                         split_method,
+                         CELL_DIM,
+                         PROPORTIONS,
+                         data_path,
+                         outfile_prefix)
 
     elapsed = time() - start_time
     print('Elapsed time %.3f minutes' % (elapsed / 60))
@@ -209,11 +209,6 @@ def reduce_data(data, mask, coord_type):
     print('Reducing mask columns...')
     data = manip.reduce_masks(['btl', 'vgt'], data)
     
-    # Keep only data where <mask> is not NaN
-    print('Reducing to masked area...')
-    data = data.loc[np.isnan(data[mask]) == False, :]
-    print('Current dimensions:', data.shape)
-
     print('Separating static data...')
     static_fields = ['etopo1', 'lat', 'lon', 'mask', 'srtm30', 'x', 'y']
     static_df = data[static_fields]
@@ -238,6 +233,12 @@ def reduce_data(data, mask, coord_type):
     print('Restructured data dimensions:', df_out.shape)
     df_out = df_out.rename(columns=predictor_name_map)
     print('Head:\n', df_out.head())
+
+    print('Reducing to data to bounding box of %s' % mask)
+    bbox = manip.get_bounding_box_by_mask_col(
+        df_out, mask_column=mask, coord_type='xy')
+    df_out = manip.restrict_to_bounding_box(df_out, bbox, coord_type)
+    print('Final dimensions:', df_out.shape)
     
     return df_out
 
