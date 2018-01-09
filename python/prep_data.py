@@ -48,6 +48,7 @@
 #===============================================================================
 
 import argparse
+import numpy as np
 import os
 import pandas as pd
 import sys
@@ -61,12 +62,34 @@ import split_data as split
 ENV = 'dev'
 DATA_PATH = '../data/'
 INFILE = 'climatic_variables_longlat_var.csv'
-MASK = 'btl_mat_msk.2'
+MASK = 'beetle'
 COORD_TYPE = 'xy'
 OUTFILE_PREFIX = ''
 SPLIT_METHOD = 'all'
 CELL_DIM = 10000 # dimensions of raster cell
 PROPORTIONS = [0.7, 0.15, 0.15] # train, valid, split
+EARLIEST_YEAR = 2000
+LATEST_YEAR   = 2014
+
+predictor_name_map = {
+    'cpja_slice_msk': 'precip_JunAug',
+    'cpos_slice_msk': 'precip_OctSep',
+    'gsp_slice_msk':  'precip_growingSeason',
+    'map_slice_msk':  'precip_meanAnnual',
+    'mat_slice_msk':  'meanTemp_Annual',
+    'mta_slice_msk':  'meanTemp_Aug',
+    'mtaa_slice_msk': 'meanTemp_AprAug',
+    'ntj_slice_msk':  'meanMinTemp_Jan',
+    'ntm_slice_msk':  'meanMinTemp_Mar',
+    'nto_slice_msk':  'meanMinTemp_Oct',
+    'ntw_slice_msk':  'meanMinTemp_DecFeb',
+    'pja_slice_msk':  'precipPrevious_JunAug',
+    'pos_slice_msk':  'precipPrevious_OctSep',
+    'vgp_slice_msk':  'varPrecip_growingSeason',
+    'xta_slice_msk':  'meanMaxTemp_Aug',
+    'etopo1':         'elev_etopo1',
+    'srtm30':         'elev_srtm30',
+    'mask':           'studyArea'}
 
 
 def read_input():
@@ -119,6 +142,17 @@ def main(options):
     print('Loading data from %s%s...' % (data_path, infile))
     data = load_data(data_path, infile)
     data = reduce_data(data, mask, coord_type)
+    restructured_outfile = data_path + 'climaticVariablesRestructured.csv'
+
+    print('Saving restructured data to %s...' % restructured_outfile)
+    data.to_csv(restructured_outfile, index=False)
+
+    # write mini version for testing:
+    #mini = data.loc[data.year <= 2002, :]
+    #mini_file = data_path + 'climaticVariablesMini.csv'
+
+    #print('Saving mini data set to %s...' % mini_file)
+    #mini.to_csv(mini_file, index=False)
 
     split_and_write_data(data,
                          mask,
@@ -172,17 +206,41 @@ def load_data(data_path, infile):
 
 def reduce_data(data, mask, coord_type):
     print('Initial data shape: ', data.shape)
-    print('Dropping redundant columns...')
-    data = manip.drop_redundant_columns(data)
-    print('Data shape: ', data.shape)
+    print('Reducing mask columns...')
+    data = manip.reduce_masks(['btl', 'vgt'], data)
+    
+    print('Separating static data...')
+    static_fields = ['etopo1', 'lat', 'lon', 'mask', 'srtm30', 'x', 'y']
+    static_df = data[static_fields]
+    data = data.drop(static_fields, axis=1)
 
-    print('Getting bounding box for %s' % mask)
-    bounding_box = manip.get_bounding_box_by_mask_col(data, mask, coord_type)
+    print('Separating data by year...')
+    yearly_dfs = []
+    source_df = data.copy()
 
-    print('Reducing data to region within bounding box...')
-    data =  manip.restrict_to_bounding_box(data, bounding_box, coord_type)
-    print('Final data shape:', data.shape)
-    return data
+    for year in range(EARLIEST_YEAR + 1, LATEST_YEAR + 1):
+        df, source_df = manip.make_single_year_dataframe(
+            source_df, year, static_df)
+        yearly_dfs.append(df)
+
+    df_out, _ = manip.make_single_year_dataframe(
+        source_df, EARLIEST_YEAR, static_df)
+
+    print('Merging data back together...')
+    for df in yearly_dfs:
+        df_out = df_out.append(df)
+
+    print('Restructured data dimensions:', df_out.shape)
+    df_out = df_out.rename(columns=predictor_name_map)
+    print('Head:\n', df_out.head())
+
+    print('Reducing to data to bounding box of %s' % mask)
+    bbox = manip.get_bounding_box_by_mask_col(
+        df_out, mask_column=mask, coord_type='xy')
+    df_out = manip.restrict_to_bounding_box(df_out, bbox, coord_type)
+    print('Final dimensions:', df_out.shape)
+    
+    return df_out
 
 
 def split_and_write_data(

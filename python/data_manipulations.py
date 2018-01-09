@@ -4,7 +4,7 @@ import pandas as pd
 #from pylab import *
 
 
-
+# Filtering data by geographic range (limit to bounding box)--------------------
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -77,55 +77,14 @@ def column2matrix(df, column, cell_dim=10000):
         j = int((y - ys[0]) / cell_dim)
         matrix[i, j] = value
 
-        return matrix                                                    
+    return matrix                                                    
 
 
-def drop_redundant_columns(df):
-    '''
-    Removes columns with identical information from dataframe <df>
-
-    Args:
-    df: DataFrame: the data to be cleaned
-
-    Returns: DataFrame with redundandat columns removed
-    '''
-
-    # Order columns alphabetically
-    sorted_cols = sorted(list(df))
-    df = df[sorted_cols]
-    col_split = [col.split('_') for col in list(df)]
-
-    # Get names of columns with prefixing removed
-    remainders = ['_'.join(cs[1:]) for cs in col_split]
-    unique_remainders = set(sorted(remainders))
-    
-    # These columns are not "prefixed"; ignore these
-    solos = ['etopo1', 'lat', 'lon', 'mask', 'srtm30', 'y']
-    redundant = []
-
-    for remainder in unique_remainders:
-        first_instance = None
-        first_instance_name = None
-
-        for col in list(df):
-            if col not in solos and '_'.join(col.split('_')[1:]) == remainder:
-                if first_instance is None:
-                    first_instance = df[col]
-                    first_instance_name = col
-                else:
-                    if df[col].all() == first_instance.all():
-                        redundant.append(col)
-
-    return df.drop(redundant, axis=1)
-    
-
-def get_bounding_box_by_mask_col(
-        df, mask_column='btl_mat_msk.2', coord_type='xy'):
-
+def get_bounding_box_by_mask_col(df, mask_column='beetle', coord_type='xy'):
         assert coord_type in ['xy', 'lon_lat']
         cols = ['x', 'y'] if coord_type == 'xy' else ['lon', 'lat']
         dtype = int if coord_type is 'xy' else float
-        mask = np.isnan(df[mask_column]) == False
+        mask = df[mask_column] == 1
         masked_df = df.loc[mask, cols]
         x_min, x_max = masked_df['x'].min(), masked_df['x'].max()
         y_min, y_max = masked_df['y'].min(), masked_df['y'].max()
@@ -141,3 +100,63 @@ def get_bounding_box_by_mask_col(
             print(e)
             return None
                                 
+
+
+# Reformatting the structure of the data----------------------------------------
+def reduce_masks(masks, dataframe):
+    df = dataframe.copy()
+    for mask in masks:
+        df = reduce_mask_to_single(mask, df)
+        df = mask_to_binary(mask, df)
+    return df
+
+
+def reduce_mask_to_single(mask, dataframe):
+    assert mask in ['btl', 'vgt']
+    df = dataframe.copy()
+    drop_cols = [field for field in list(df)
+                 if field.startswith(mask) and '_cpja_' not in field]
+    df = df.drop(drop_cols, axis=1)
+    return df
+
+
+def mask_to_binary(mask, dataframe):
+    assert mask in ['btl', 'vgt', 'mask']
+    df = dataframe.copy()
+    
+    for col in list(df):
+        if col.startswith(mask):
+            df[col] = df[col].apply(lambda x: 0 if np.isnan(x) else 1)
+
+    return df
+
+
+def make_single_year_dataframe(source_df, year, static_df, verbose=True):
+    static = static_df.copy()
+    n = source_df.shape[0]
+    year_col = [year] * n
+    df = pd.DataFrame(index=range(n), data=year_col, columns=['year'])
+
+    for field in list(source_df):
+        if field.endswith('.%s' % (year - 2000)):
+            simple_field = field.split('.')[0]
+            if 'btl' in simple_field:
+                simple_field = 'beetle'
+            elif 'vgt' in simple_field:
+                simple_field = 'vegetation'
+            df[simple_field] = source_df.pop(field)
+        elif '.' not in field and year == 2000:
+            simple_field = field
+            if 'btl' in field:
+                simple_field = 'beetle'
+            elif 'vgt' in field:
+                simple_field = 'vegetation'
+            df[simple_field] = source_df.pop(field)
+            
+    for field in static:
+        df[field] = static[field]
+        
+    if verbose:
+        print('Dataframe for %d has dimensions:' % year, df.shape)
+        
+    return df, source_df
