@@ -52,7 +52,7 @@ def restrict_to_bounding_box(data, bounding_box, coord_type='lon_lat'):
                 (y_min <= data[y]) & (data[y] <= y_max)]
 
 
-def column2matrix(df, column, cell_dim=10000):
+def column2matrix(df, column, cell_dim=1):
     '''
     Convert a column from DataFrame df into a matrix representation with the 
     upper-left cell indexing beginning at [0, 0].
@@ -71,7 +71,7 @@ def column2matrix(df, column, cell_dim=10000):
     matrix = np.array([[np.nan for y in range(len(ys))]
                        for x in range(len(xs))])
 
-    for row in range(df.shape[0]):
+    for row in df.index:
         x, y, value = df.loc[row, ['x', 'y', column]]
         i = int((x - xs[0]) / cell_dim)
         j = int((y - ys[0]) / cell_dim)
