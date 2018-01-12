@@ -272,12 +272,8 @@ def write_data(data_split, method, data_path, outfile_prefix, side=''):
                        % (data_path, method, side, outfile_prefix,
                           file_names[data_set][xy]))
             print('Writing file to %s...' % outpath)
-            if xy == 0: # X
-                data_split[data_set][xy].to_csv(outpath, index=False)
-            else:
-                print(data_split[data_set][xy])
-                data_split[data_set][xy].to_csv(outpath, index=True)
-            
+            data_split[data_set][xy].to_csv(outpath, index=False)
+                        
                        
                         
     

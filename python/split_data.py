@@ -46,7 +46,7 @@ def split_data(
     
 def split_predictors_response(dat, response):
     data = dat.copy()
-    y = data[response]
+    y = data.loc[:, response]
     X = data.drop(response, axis=1)
     return X, y
 
