@@ -40,7 +40,8 @@ def split_data(
     if method == 'edge':
         assert side in ['n', 's', 'e', 'w']
         return split_data_edge(data, response, proportions, cell_dim, side)
-
+    if method == 'year':
+        return split_data_year(data, response, cell_dim)
 
 
     
@@ -125,6 +126,17 @@ def split_data_edge(dat, response, proportions, cell_dim, side):
 
     print_data_split(X_train, y_train, X_valid, y_valid, X_test, y_test)
     return [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]]
+
+
+def split_data_year(dat, response, cell_dim):
+    data = dat.copy()
+    years = sorted(dat['year'].unique())
+    test = years[0]
+    valid = years[1]
+    train = years[2:]
+    X_train, y_train = split_predictors_response(train, response)
+    X_valid, y_valid = split_predictors_response(valid, response)
+    X_test,  y_test  = split_predictors_response(test,  response)
 
 
 

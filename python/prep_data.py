@@ -25,6 +25,9 @@
 #         s/...(as previous)
 #         e/...
 #         w/..
+#       year/
+#         X_train.csv, X_valid.csv, X_test.csv,
+#         y_train.csv, y_valid.csv, y_test.csv
 # Usage:
 #   prep_data.py -e ENV -d DATA_PATH [-i INFILE] [-m MASK] [-c COORD_TYPE] \
 #     [-o OUTFILE_PREFIX] [-s SPLIT_METHOD]
@@ -40,8 +43,9 @@
 #      default)
 #   -o OUTFILE_PREFIX: (none by default) if specified outputs will be like:
 #      prefix_X_train.csv, etc
-#   -s SPLIT_METHOD: ['random' | 'internal' | 'edge' | 'all'] method used to
-#      split data into train, validation, and test sets ('all' by default)
+#   -s SPLIT_METHOD: ['random' | 'internal' | 'edge' | 'year' | 'all'] method
+#      used to split data into train, validation, and test sets ('all' by
+#      default)
 #   Examples:
 #     ./prep_data.py "../data/"
 #
@@ -65,7 +69,7 @@ INFILE = 'climatic_variables_longlat_var.csv'
 MASK = 'beetle'
 COORD_TYPE = 'xy'
 OUTFILE_PREFIX = ''
-SPLIT_METHOD = 'all'
+SPLIT_METHOD = 'year'
 CELL_DIM = 10000 # dimensions of raster cell
 PROPORTIONS = [0.7, 0.15, 0.15] # train, valid, split
 EARLIEST_YEAR = 2000
@@ -127,8 +131,9 @@ def read_input():
     p.add_argument(
         '-s', '--split',
         dest='split_method',
-        help=('["random" | "internal" | "edge" | "all"] method used to split '
-              'data into train, validation, and test sets ("all" by default)'))
+        help=('["random" | "internal" | "edge" | "year" | "all"] method used '
+              'to split data into train, validation, and test sets ("all" by '
+              'default)'))
     return p.parse_args()
 
 
