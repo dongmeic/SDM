@@ -28,7 +28,7 @@ def split_data(
     proportions = np.array(proportions) # convert type
 
     assert len(proportions) == 3 and proportions.sum() == 1.
-    assert method in ['random', 'internal', 'edge']
+    assert method in ['random', 'internal', 'edge', 'year']
 
     if method == 'random':
         X, y = split_predictors_response(data, response)
@@ -130,14 +130,19 @@ def split_data_edge(dat, response, proportions, cell_dim, side):
 
 def split_data_year(dat, response, cell_dim):
     data = dat.copy()
-    years = sorted(dat['year'].unique())
-    test = years[0]
-    valid = years[1]
-    train = years[2:]
-    X_train, y_train = split_predictors_response(train, response)
-    X_valid, y_valid = split_predictors_response(valid, response)
-    X_test,  y_test  = split_predictors_response(test,  response)
+    years = sorted(data['year'].unique())
+    test_year = years[0]
+    valid_year = years[1]
+    train_years = years[2:]
+    test_set  = data.loc[data.year == test_year, :]
+    valid_set = data.loc[data.year == valid_year, :]
+    train_set = data.loc[data.year > valid_year, :]
+    X_train, y_train = split_predictors_response(train_set, response)
+    X_valid, y_valid = split_predictors_response(valid_set, response)
+    X_test,  y_test  = split_predictors_response(test_set,  response)
 
+    print_data_split(X_train, y_train, X_valid, y_valid, X_test, y_test)
+    return [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]]
 
 
 
