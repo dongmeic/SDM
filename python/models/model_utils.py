@@ -41,6 +41,11 @@ def summarize(df, field, plot=True):
         plt.show();
 
 
+def print_percent_presence(y, y_name):
+        print('Percent presence in %s: %.2f%%' %
+              (y_name, 100 * y.sum() / y.shape[0]))
+
+        
 def drop_nans(X_df, y_df, field, verbose=True):
     X = X_df.copy()
     y = y_df.copy()
@@ -71,7 +76,7 @@ def binarize(preds):
     
 def one_cold(one_hot_matrix):
     # [[0, 1], [0, 1], [1, 0]] -> [1, 1, 0]
-    return [argmax(vector) for vector in one_hot_matrix]
+    return [np.argmax(vector) for vector in one_hot_matrix]
 
 
 def print_cm(tp, tn, fp, fn):
