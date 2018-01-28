@@ -131,12 +131,13 @@ def split_data_edge(dat, response, proportions, cell_dim, side):
 def split_data_year(dat, response, cell_dim):
     data = dat.copy()
     years = sorted(data['year'].unique())
-    test_year = years[0]
-    valid_year = years[1]
-    train_years = years[2:]
-    test_set  = data.loc[data.year == test_year, :]
-    valid_set = data.loc[data.year == valid_year, :]
-    train_set = data.loc[data.year > valid_year, :]
+    test_years = years[0:3]
+    valid_years = years[3:6]
+    train_years = years[6:]
+    test_set  = data.loc[data.year <= max(test_years), :]
+    valid_set = data.loc[
+        ((data.year >= min(valid_years)) & (data.year <= max(valid_years))), :]
+    train_set = data.loc[data.year >= min(train_years), :]
     X_train, y_train = split_predictors_response(train_set, response)
     X_valid, y_valid = split_predictors_response(valid_set, response)
     X_test,  y_test  = split_predictors_response(test_set,  response)
