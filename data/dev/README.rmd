@@ -1,5 +1,0 @@
-# dev
-
-The data files in this folder are reduced versions of the actual data, intended to be used for development, so code may run quickly and efficiently.
-
-When running on the cluster, paths to actual source data should be used instead.
