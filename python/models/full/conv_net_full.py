@@ -157,7 +157,7 @@ def print_setup(layers):
           % (HEIGHT, WIDTH, layers))
     params = get_params()
     for k, v in params.items():
-        print('%-12s %s' % ('  ' + k + ':', v))
+        print('%-12s %s' % (k + ':', v))
 
 
 def get_params():
