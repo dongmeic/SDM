@@ -4,7 +4,8 @@
 # python/prep_data.py to split data into various train/validation/test sets
 
 ENV='cluster'
-INPATH=climatic_variables_longlat_var_longterm.csv
+INPATH=climatic_variables_longlat_var.csv
+#INPATH=climatic_variables_longlat_var_longterm.csv
 DATA_PATH=./data/
 
 echo Loading python3 module...
@@ -18,7 +19,7 @@ done
     
 
 echo Running prep_data.py...
-./python/prep_data.py -e $ENV -d $DATA_PATH -i $INPATH -s year -o historic
+./python/prep_data.py -e $ENV -d $DATA_PATH -i $INPATH -s year #-o historic
 
 # prep_data.py -e ENV -d DATA_PATH [-i INFILE] [-m MASK] [-c COORD_TYPE] \     
 #     [-o OUTFILE_PREFIX] [-s SPLIT_METHOD]
