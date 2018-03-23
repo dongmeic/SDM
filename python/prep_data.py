@@ -65,14 +65,14 @@ import split_data as split
 # Default args
 ENV = 'dev'
 DATA_PATH = '../data/'
-INFILE = 'climatic_variables_longlat_var.csv'
-MASK = 'studyArea' #'beetle'
+INFILE = 'climatic_variables_longlat_var_v2.csv'
+MASK = 'beetle' #'studyArea'
 COORD_TYPE = 'xy'
 OUTFILE_PREFIX = ''
-SPLIT_METHOD = 'all'
+SPLIT_METHOD = 'year'
 CELL_DIM = 10000 # dimensions of raster cell
 PROPORTIONS = [0.7, 0.15, 0.15] # train, valid, split
-EARLIEST_YEAR = 1903 #2000
+EARLIEST_YEAR = 2000 #1903 
 LATEST_YEAR   = 2014
 
 predictor_name_map = {
@@ -212,7 +212,7 @@ def load_data(data_path, infile):
 def reduce_data(data, mask, coord_type):
     print('Initial data shape: ', data.shape)
     print('Reducing mask columns...')
-    #data = manip.reduce_masks(['btl', 'vgt'], data)
+    data = manip.reduce_masks(['btl', 'vgt'], data)
     data = manip.reduce_masks(['vgt'], data)
     
     print('Separating static data...')
