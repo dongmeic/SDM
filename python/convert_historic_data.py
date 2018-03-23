@@ -5,7 +5,7 @@ import numpy as np
 import os
 import pandas as pd
 
-DATA_DIR = '../../data/cluster/historic/'
+DATA_DIR = '../data/cluster/historic/'
 FIELD_MAP = {
     'cpja_slice_msk': 'precip_JunAug',
     'cpos_slice_msk': 'precip_OctSep',
@@ -59,3 +59,7 @@ def mask_to_binary(mask, dataframe):
         if col.startswith(mask):
             df[col] = df[col].apply(lambda x: 0 if np.isnan(x) else 1)
     return df
+
+
+if __name__ == '__main__':
+    main()
