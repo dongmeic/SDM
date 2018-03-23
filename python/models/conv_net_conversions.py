@@ -58,13 +58,21 @@ def column2matrix(dataframe, column, year, cell_dim=10000):
     df.y -= y_min
     xs = sorted(df.x.unique())
     ys = sorted(df.y.unique())
+    #xs = range(int(min(xs)), int(max(xs)) + 1)
+    #ys = range(int(min(ys)), int(max(ys)) + 1)
     matrix = np.array([[np.nan for y in range(len(ys))]
                        for x in range(len(xs))])
     for row in df.index:
         x, y, value = df.loc[row, ['x', 'y', column]]
-        i = int((x - xs[0]) / cell_dim)
+        i = int((x - xs[0]) / cell_dim) 
         j = int((y - ys[0]) / cell_dim)
-        matrix[i, j] = value
+        try:
+            matrix[i, j] = value
+        except:
+            print('x: %d; xs[0]: %d; xs[-1]: %d; i: %d\n'
+                  'y: %d; ys[0]: %d; ys[-1]: %d; j: %d\n'
+                  'matrix: %s' 
+                  % (x, xs[0], xs[-1], i, y, ys[0], ys[-1], j, matrix.shape))
     return matrix
 
 
