@@ -212,7 +212,7 @@ def load_data(data_path, infile):
 def reduce_data(data, mask, coord_type):
     print('Initial data shape: ', data.shape)
     print('Reducing mask columns...')
-    #data = manip.reduce_masks(['btl', 'vgt'], data)
+    data = manip.reduce_masks(['btl', 'vgt'], data)
     data = manip.reduce_masks(['vgt'], data)
     
     print('Separating static data...')
