@@ -1,0 +1,21 @@
+#!/bin/bash
+#SBATCH --partition=longfat    ### Partition (like a queue in PBS)
+#SBATCH --job-name=formatClimData        ### Job Name
+#SBATCH --output=logs/formatClimData.out ### File for job output
+#SBATCH --error=logs/formatClimData.err  ### File fore job error messages
+#SBATCH --time=1-05:00:00      ### Wall clock time limit in Days-HH:MM:SS
+#SBATCH --nodes=1              ### Node count required for the job
+#SBATCH --ntasks-per-node=1    ### Number of tasks to be launched per Node
+##Set the working directory of the batch script to directory before it is executed
+#SBATCH --workdir=/projects/bonelab/dongmeic/sdm/
+#SBATCH --mem=1T
+
+echo "Starting historical climate formatting job: " `date` >> job.log
+echo "Loading python module"s >> job.log
+module load python3/3.6.1
+
+echo "Running start.sh" >> job.log
+./start.sh 
+echo "Job completed at " `date` >> job.log
+
+###https://hpcrcf.altassian.net/wiki/spaces/TCP/pages/6763193/Machine+Specifications
