@@ -14,6 +14,7 @@ def main():
     for year in range(START_YEAR, END_YEAR + 1):
         make_and_save_tensor(DATA_DIR, year)
 
+
 def make_and_save_tensor(data_path, year, verbose=True):
     print('\nMaking new tensor for %d' % year)
     out_path = data_path + 'tensor20_%d.pkl.bz2' % year
