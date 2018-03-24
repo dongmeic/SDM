@@ -12,29 +12,32 @@ from sklearn.preprocessing import StandardScaler
 import model_utils as util
 
 DATA_DIR = '../../data/cluster/year/'
-
+HISTORICAL = False
 
 def main():
-    [[X_train, y_train],
-     [X_valid, y_valid],
-     [X_test, y_test]] = util.load_data(DATA_DIR)
-    X_train, y_train = util.drop_nans(
-        X_train, y_train, 'varPrecip_growingSeason')
-    X_valid, y_valid = util.drop_nans(
-        X_valid, y_valid, 'varPrecip_growingSeason')
-    X_test,  y_test  = util.drop_nans(
-        X_test,  y_test,  'varPrecip_growingSeason')
-    ignore = ['year', 'studyArea', 'elev_srtm30', 'x', 'y']
-    fields = [col for col in list(X_test) if col not in ignore]
-    for i in range(2006, 2015):
-        make_and_save_tensor(X_train,   fields,  i)
-        make_and_save_y_matrix(y_train, X_train, i)
-    for i in range(2003, 2006):
-        make_and_save_tensor(X_valid,   fields,  i)
-        make_and_save_y_matrix(y_valid, X_valid, i)
-    for i in range(2000, 2003):
-        make_and_save_tensor(X_test,   fields, i)
-        make_and_save_y_matrix(y_test, X_test, i)
+    if HISTORICAL:
+        pass
+    else:
+        [[X_train, y_train],
+         [X_valid, y_valid],
+         [X_test, y_test]] = util.load_data(DATA_DIR)
+        X_train, y_train = util.drop_nans(
+            X_train, y_train, 'varPrecip_growingSeason')
+        X_valid, y_valid = util.drop_nans(
+            X_valid, y_valid, 'varPrecip_growingSeason')
+        X_test,  y_test  = util.drop_nans(
+            X_test,  y_test,  'varPrecip_growingSeason')
+        ignore = ['year', 'studyArea', 'elev_srtm30', 'x', 'y']
+        fields = [col for col in list(X_test) if col not in ignore]
+        for i in range(2006, 2015):
+            make_and_save_tensor(X_train,   fields,  i)
+            make_and_save_y_matrix(y_train, X_train, i)
+        for i in range(2003, 2006):
+            make_and_save_tensor(X_valid,   fields,  i)
+            make_and_save_y_matrix(y_valid, X_valid, i)
+        for i in range(2000, 2003):
+            make_and_save_tensor(X_test,   fields, i)
+            make_and_save_y_matrix(y_test, X_test, i)
 
 
 def column2matrix(dataframe, column, year, cell_dim=10000):
