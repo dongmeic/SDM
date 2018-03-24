@@ -52,6 +52,7 @@ def make_new_data_sets(data):
         x2, y2 = yearly_data[i + 1]
         assert list(x1.x) == list(x2.x)
         assert list(x1.y) == list(x2.y)
+        y2.index = x1.index
         x1['next_year_beetle'] = y2['beetle']
         with_beetle_data.append([x1, y1])
     test = with_beetle_data[:TEST]
