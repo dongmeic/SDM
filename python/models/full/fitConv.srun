@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --job-name=fitConvGPU
+#SBATCH --partition=gpu 
+#SBATCH --output=logs/fitConv.out
+#SBATCH --error=logs/fitConv.err
+#SBATCH --time=0-00:10:00 ### Days-HH:MM:SS
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --gres=gpu:1
+##Set the working directory of the batch script to directory before it is executed
+#SBATCH --workdir=/projects/bonelab/dongmeic/sdm/
+
+BEST_LOSS=np.inf
+echo "fitConv.srun: " `date` >> job.log
+echo "Loading python module"s >> job.log
+module load anaconda3/5.1.0
+
+echo "Running conv_net_full.py" >> job.log
+./conv_net_full.py $BEST_LOSS
+echo "Job completed at " `date` >> job.log
+
+###https://hpcrcf.altassian.net/wiki/spaces/TCP/pages/6763193/Machine+Specifications
