@@ -18,6 +18,7 @@ from pprint import pprint
 #from pylab import *
 from sklearn.preprocessing import StandardScaler
 
+ENV = 'cluster'
 DATA_DIR = '../../../data/cluster/year/'
 OUT_DIR = './weights/'
 TEST_YEARS  = range(2000, 2003) # 2000 - 02
@@ -34,7 +35,7 @@ N_CLASSES = 2 # values in response (1, 0) or beetle (presence, absence)
 HEIGHT = WIDTH = 2*BUFFER + 1
 ETA = 0.0001 # Learning rate
 BATCH = 512
-EPOCHS = 3 # 10000
+EPOCHS = 10 # 10000
 DROPOUT = 0
 BETA_1 = 0.9
 BETA_2 = 0.999
@@ -72,7 +73,8 @@ def main(best_loss_so_far):
                                   verbose=1)
     elapsed = time.time() - start
     print('Ran %d epochs in %.2f minutes' % (EPOCHS, (elapsed / 60)))
-    plot_curves(history.history)
+    if ENV == 'local':
+        plot_curves(history.history)
     loss_this_run = get_final_performance(history.history)
     save_data(loss_this_run, best_loss_so_far, model)
 
