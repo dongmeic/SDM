@@ -19,7 +19,7 @@ FIELD_MAP = {
     'nto_slice_msk':  'meanMinTemp_Oct',
     'ntw_slice_msk':  'meanMinTemp_DecFeb',
     'pja_slice_msk':  'precipPrevious_JunAug',
-    'pos_slice_msk':  'precipPreious_OctSep',
+    'pos_slice_msk':  'precipPrevious_OctSep',
     'vgp_slice_msk':  'varPrecip_growingSeason',
     'vgt_mat_msk':    'vegetation',
     'xta_slice_msk':  'meanMaxTemp_Aug',
