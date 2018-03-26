@@ -3,16 +3,19 @@
 #SBATCH --partition=gpu 
 #SBATCH --output=logs/fitConv.out
 #SBATCH --error=logs/fitConv.err
-#SBATCH --time=0-00:10:00 ### Days-HH:MM:SS
+#SBATCH --time=0-05:00:00 ### Days-HH:MM:SS
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
 ##Set the working directory of the batch script to directory before it is executed
-#SBATCH --workdir=/projects/bonelab/dongmeic/sdm/
+#SBATCH --workdir=/projects/bonelab/dongmeic/sdm/python/models/full
 
-BEST_LOSS=np.inf
+BEST_LOSS=0.20947
+#DATE=date | sed -e 's/ //g'
+echo "" >> job.log; echo "" >> job.log
 echo "fitConv.srun: " `date` >> job.log
 echo "Loading python module"s >> job.log
+module del python3/3.6.1
 module load anaconda3/5.1.0
 
 echo "Running conv_net_full.py" >> job.log

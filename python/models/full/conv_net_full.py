@@ -35,7 +35,7 @@ N_CLASSES = 2 # values in response (1, 0) or beetle (presence, absence)
 HEIGHT = WIDTH = 2*BUFFER + 1
 ETA = 0.0001 # Learning rate
 BATCH = 512
-EPOCHS = 10 # 10000
+EPOCHS = 1000 # 10000
 DROPOUT = 0
 BETA_1 = 0.9
 BETA_2 = 0.999
@@ -60,7 +60,7 @@ def main(best_loss_so_far):
     model.compile(
         loss='binary_crossentropy', optimizer=opt, metrics=['accuracy'])
     checkpointer = ModelCheckpoint(filepath='./weights/convTemp.hdf5',
-                                   verbose=1,
+                                   verbose=0,
                                    save_best_only=True)
     print('Fitting model...')
     start = time.time()
@@ -70,11 +70,12 @@ def main(best_loss_so_far):
                                   validation_data=validation_generator,
                                   validation_steps=BATCH // 2,
                                   callbacks=[checkpointer],
-                                  verbose=1)
+                                  verbose=0)
     elapsed = time.time() - start
     print('Ran %d epochs in %.2f minutes' % (EPOCHS, (elapsed / 60)))
     if ENV == 'local':
         plot_curves(history.history)
+    print_loss_summary(history.history)
     loss_this_run = get_final_performance(history.history)
     save_data(loss_this_run, best_loss_so_far, model)
 
@@ -199,6 +200,14 @@ def build_model(layers):
     model.add(Activation('relu'))
     model.add(Dropout(DROPOUT))
 
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dropout(DROPOUT))
+
+    model.add(Dense(64))
+    model.add(Activation('relu'))
+    model.add(Dropout(DROPOUT))
+
     model.add(Dense(32))
     model.add(Activation('relu'))
     model.add(Dropout(DROPOUT))
@@ -232,6 +241,17 @@ def plot_accuracy_curve(history):
     plt.ylabel('Accuracy')
     plt.legend()
     plt.show()
+
+
+def print_loss_summary(history):
+    print('Performance History\n'
+          '%10s %10s %10s %10s %10s' 
+          % ('Epoch', 'Loss', 'Acc', 'Val Loss', 'Val Acc'))
+    for i in range(EPOCHS):
+        if i % 20 == 0:
+            print('%10d %10.5f %10.5f %10.5f %10.5f'
+                  % (i, history['loss'][i], history['acc'][i], 
+                     history['val_loss'][i], history['val_acc'][i]))
 
 
 def get_final_performance(history):
