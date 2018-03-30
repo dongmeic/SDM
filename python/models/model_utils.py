@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import auc, roc_curve 
 
+
 def load_data(data_dir):
     X_train = pd.read_csv(data_dir + 'X_train.csv')
     print('X_train:', X_train.shape)
@@ -132,3 +133,33 @@ def plot_roc(fpr, tpr):
     plt.ylabel('True Positive Rate (Sensitivity)')
     plt.title('ROC Curve')
     plt.show()
+
+
+def column2matrix(dataframe, column, cell_dim=10000):
+    '''
+    Convert a column from DataFrame df into a matrix representation with the
+    upper-left cell indexing beginning at [0, 0].
+    It is expected that the DataFrame has columns x and y.
+    
+    Args: 
+    df: DataFrame: the source data
+    column: string: the column name to extract
+    cel_dim: numeric: the dimensions of each grid cell
+    
+    Returns: np.ndarray (a 2D list; matrix)
+    '''
+    df = dataframe.copy()
+    x_min = df.x.min()
+    y_min = df.y.min()
+    df.x -= x_min
+    df.y -= y_min
+    xs = sorted(df.x.unique())
+    ys = sorted(df.y.unique())
+    matrix = np.array([[np.nan for y in range(len(ys))]
+                       for x in range(len(xs))])
+    for row in df.index:
+        x, y, value = df.loc[row, ['x', 'y', column]]
+        i = int((x - xs[0]) / cell_dim)
+        j = int((y - ys[0]) / cell_dim)
+        matrix[i, j] = value
+    return matrix
