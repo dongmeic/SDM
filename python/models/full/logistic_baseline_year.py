@@ -150,6 +150,7 @@ def create_historical_predictions(
         
         year -= 1
         next_year_data = hist_data
+        hist_data = pd.read_csv(HISTORIC_DATA_PATH + 'clean_%d.csv' % year)
 
 
 def find_extra_rows(data, xy):
