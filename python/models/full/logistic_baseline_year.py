@@ -81,6 +81,9 @@ def load_data(dataset):
     print('train: X %s\t y%s' % (X_train.shape, y_train.shape))
     print('valid: X %s\t y%s' % (X_valid.shape, y_valid.shape))
     print('test:  X %s\t y%s' % (X_test.shape,  y_test.shape))
+    #print('train:', np.isfinite(X_train).all())
+    #print('valid:', np.isfinite(X_valid).all())
+    #print('test:',  np.isfinite(X_test).all())
     return [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]]
 
 
@@ -146,7 +149,7 @@ def create_historical_predictions(
         probs = [prob[1] for prob in probs]
         hist_merge['probs_%d' % year] = probs
         print('Saving data so far....')
-        hist_merge.to_csv(HISTORIC_DATA_PATH + 'predictions.csv')
+        hist_merge.to_csv(HISTORIC_DATA_PATH + 'predictions.csv', index=False)
         
         year -= 1
         next_year_data = hist_data
