@@ -1,0 +1,21 @@
+#!/bin/bash
+#SBATCH --partition=fat  
+#SBATCH --job-name=historicalLogistic
+#SBATCH --output=logs/historicalLogistic.out
+#SBATCH --error=logs/historicalLogistic.err 
+#SBATCH --time=0-10:00:00
+#SBATCH --nodes=1        
+#SBATCH --ntasks-per-node=1
+##Set the working directory of the batch script to directory before it is executed
+#SBATCH --workdir=/projects/bonelab/dongmeic/sdm/python/models/full/
+#SBATCH --mem=1T
+
+echo "Starting Historical Logistic Model job: " `date` >> job.log
+echo "Loading python module" >> job.log
+module load python3/3.6.1
+
+echo "Running logistic_baseline_year.py" >> job.log
+./logistic_baseline_year.py
+echo "Job completed at " `date` >> job.log
+
+###https://hpcrcf.altassian.net/wiki/spaces/TCP/pages/6763193/Machine+Specifications
