@@ -88,6 +88,16 @@ def print_cm(tp, tn, fp, fn):
     print('        0\t%d\t\t%d' %(fp, tn))
 
 
+
+
+def make_interactions(dataframe, interactions):
+    df = dataframe.copy()
+    for interaction in interactions:
+        main_effects = interaction.split(':')
+        df[interaction] = df[main_effects[0]] * df[main_effects[1]]
+    return df
+
+
 def make_confusion_matrix(targets, pred_probs, threshold, verbose=True):
     targets = np.array(targets)
     pred_probs = np.array(pred_probs)
