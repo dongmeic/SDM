@@ -1,22 +1,50 @@
 #!/usr/bin/env python3
 
 import bz2
+import sys
+import pickle
+import time
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sys
-import pickle
-from pylab import *
-from sklearn.preprocessing import StandardScaler
+#from sklearn.preprocessing import StandardScaler
 
 import model_utils as util
 
 DATA_DIR = '../../data/cluster/year/'
-HISTORICAL = False
+HISTORIC_DATA_DIR = '../../data/cluster/historic/'
+HISTORIC = True
+HISTORIC_YEARS = range(1903, 2000)
 
 def main():
-    if HISTORICAL:
-        pass
+    ignore = [
+        'year', 'studyArea', 'elev_srtm30', 'x', 'y', 'varPrecip_growingSeason']
+    if HISTORIC:
+        X_test = pd.read_csv(DATA_DIR + 'X_test.csv')
+        x_min = X_test.x.min()
+        y_min = X_test.y.min()
+        x_max = X_test.x.max()
+        y_max = X_test.y.max()
+        print('x range: %d - %d' % (x_min, x_max))
+        print('y range: %d - %d' % (y_min, y_max))
+        t0 = time.time()
+        for i in HISTORIC_YEARS:
+            t_iter = time.time()
+            path = '%sclean_%d.csv' % (HISTORIC_DATA_DIR, i)
+            print('Reading data from %s...' % path)
+            X = pd.read_csv(path)
+            print('Filtering x, y ranges...')
+            X = X.loc[((X.x >= x_min)
+                       & (X.x <= x_max)
+                       & (X.y >= y_min)
+                       & (X.y <= y_max)), :]
+            fields = [col for col in list(X) if col not in ignore]
+            make_and_save_tensor(X, fields, i)
+            iter_time = (time.time() - t_iter) / 60
+            elapsed = (time.time() - t0) / 60
+            print('  Iteration time: %.2fminutes\n  Elapsed time: %.2fminutes'
+                  % (iter_time, elapsed))
     else:
         [[X_train, y_train],
          [X_valid, y_valid],
@@ -27,7 +55,6 @@ def main():
             X_valid, y_valid, 'varPrecip_growingSeason')
         X_test,  y_test  = util.drop_nans(
             X_test,  y_test,  'varPrecip_growingSeason')
-        ignore = ['year', 'studyArea', 'elev_srtm30', 'x', 'y']
         fields = [col for col in list(X_test) if col not in ignore]
         for i in range(2006, 2015):
             make_and_save_tensor(X_train,   fields,  i)
