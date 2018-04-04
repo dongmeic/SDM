@@ -3,13 +3,9 @@ import os
 import sys
 import time
 
-#import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-#from pylab import *
-from sklearn.linear_model import LogisticRegression#, Ridge
-#from sklearn.pipeline import Pipeline
-#from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 sys.path.append('..')
