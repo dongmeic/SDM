@@ -82,7 +82,7 @@ def main():
             lambda row: str(row['x']) + str(row['y']), axis=1)
         out_data['probs_%s' % year] = year_data['probs']
         out_data['preds_%s' % year] = year_data['preds']
-        out_data.index = range(out_data.shape[0])
+    out_data.index = range(out_data.shape[0])
     print(out_data.head())
     out_data.to_csv(HISTORIC_DATA_PATH + 'recent_data_fitted_no_beetle.csv')
 
