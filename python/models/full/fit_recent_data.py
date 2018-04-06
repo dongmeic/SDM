@@ -11,7 +11,7 @@ import model_utils as util
 
 DATA_PATH =  '../../../data/cluster/year/'
 HISTORIC_DATA_PATH = '../../../data/cluster/historic/'
-OPTIMAL_THRESHOLD = 0.5
+OPTIMAL_THRESHOLD = 0.44088
 
 
 def main():
@@ -47,7 +47,7 @@ def main():
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
     y = y['beetle'].values.reshape(-1)
-    logistic_clf = LogisticRegression(C=0.001923583801, penalty='l1')
+    logistic_clf = LogisticRegression(C=0.00302846265237, penalty='l1')
     logistic_clf.fit(X, y)
     probs = logistic_clf.predict_proba(X)
     probs = [p[1] for p in probs]
