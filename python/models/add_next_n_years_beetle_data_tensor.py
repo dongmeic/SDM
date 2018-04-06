@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import bz2
 import os
 import pickle
@@ -8,7 +10,7 @@ import pandas as pd
 
 DATA_DIR = '../../data/cluster/year/'
 N_YEARS_AHEAD = 3
-YEAR_RANGE = range(1903, 2012) 
+YEAR_RANGE = range(2000, 2012) 
 
 
 def main():
