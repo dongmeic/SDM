@@ -42,10 +42,9 @@ def main():
     
 def make_new_data_sets(data):
     yearly_data = []
-    for year in range(START_YEAR, END_YEAR + 1):
+    for year in range(START_YEAR, END_YEAR + 2):
         X, y = make_yearly_data(data, year)
         yearly_data.append([X, y])
-    assert TRAIN + VALID + TEST == len(yearly_data) - 1
     with_beetle_data = []
     for i in range(len(yearly_data) - 1):
         x1, y1 = yearly_data[i]
