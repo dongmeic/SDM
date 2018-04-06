@@ -65,7 +65,7 @@ def main():
     out_data.index = out_data.apply(
         lambda row: str(row['x']) + str(row['y']), axis=1)
 
-    for year in range(2001, 2013):
+    for year in range(2001, 2014):
         year_data = X_df.loc[X_df.year == year, ['x', 'y', 'probs', 'preds']]
         year_data.index = year_data.apply(
             lambda row: str(row['x']) + str(row['y']), axis=1)
