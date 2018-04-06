@@ -19,6 +19,7 @@ import model_utils as util
 
 DATA_PATH =  '../../../data/cluster/year/'
 HISTORIC_DATA_PATH = '../../../data/cluster/historic/'
+OPTIMAL_THRESHOLD = 0.44088
 
 
 def main():
@@ -43,7 +44,7 @@ def main():
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
     y = y['beetle'].values.reshape(-1)
-    logistic_clf = LogisticRegression(C=0.00215443469003, penalty='l1')
+    logistic_clf = LogisticRegression(C=0.00302846265237, penalty='l1')
     logistic_clf.fit(X, y)
 
     coefs = pd.DataFrame(
@@ -90,15 +91,16 @@ def main():
         for p in predictors[1:]:
             hist_essentials[p] = hist_data[p]
 
-        hist_essentials = scaler.fit_transform(hist_essentials)
-        hist_data['beetle'] = logistic_clf.predict(hist_essentials)
         print('  Predicting...')
+        hist_essentials = scaler.fit_transform(hist_essentials)
+        #hist_data['beetle'] = logistic_clf.predict(hist_essentials)
         probs = logistic_clf.predict_proba(hist_essentials)
-        probs = [prob[1] for prob in probs]
+        probs = np.array([prob[1] for prob in probs])
         hist_data['beetle'] = probs
         hist_merge.loc[:, 'probs_%d' % year] = hist_data['beetle']
 
-        preds = logistic_clf.predict(hist_essentials)
+        #preds = logistic_clf.predict(hist_essentials)
+        preds = list(map(lambda x: 1 if x >= OPTIMAL_THRESHOLD else 0, probs))
         hist_merge.loc[:, 'preds_%d' % year] = preds
         print('  Saving data so far...')
         hist_merge.to_csv(HISTORIC_DATA_PATH + 'predictions_from_probs.csv', 
