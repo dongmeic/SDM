@@ -2,7 +2,8 @@
 library(mgcv)
 
 
-DATA_DIR <- '../../data/Xy_internal_split_data'
+DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
+setwd("/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/gam")
 
 merge.files <- function(set=c('train', 'valid', 'test')) {
   cat(sprintf('Merging %s data...\n', set))
@@ -23,10 +24,6 @@ merge.files <- function(set=c('train', 'valid', 'test')) {
   data
 }
 
-
-
-
-
 main <- function(iters) {
   train <- merge.files('train')
   ignore <- c('btl_t', 'x', 'y', 'btl_t1', 'btl_t2', 'vgt', 'year', 
@@ -39,7 +36,7 @@ main <- function(iters) {
         n <- sample.size
         s <- sample(nrow(train), n)
         gam.mod <- gam(train$btl_t[s] ~ s(train[s, field]), family='binomial')
-        plot(gam.mod, xlab=field, ylab=paste('s(', field, ')', sep=''))    
+        plot(gam.mod, xlab=field, ylab=paste('s(', field, ')', sep=''))  
       }
     }
   }
