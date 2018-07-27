@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 
 
@@ -11,25 +12,59 @@ class ModelMatrixConstructor:
             'TMarAug', 'summerTmean', 'AugTmean', 'AugTmax', 'GSP', 'PMarAug',
             'summerP0', 'OctTmin', 'fallTmean', 'winterTmin', 'Tmin', 'Tmean',
             'Tvar', 'TOctSep', 'summerP1', 'summerP2', 'Pmean', 'POctSep',
-            'PcumOctSep', 'PPT', 'drop0', 'drop5', 'ddAugJul', 'ddAugJun']
-        self.CUBE = ['age', 'density', 'drop0', 'drop5']
+            'PcumOctSep', 'PPT', 'ddAugJul', 'ddAugJun']
+        self.CUBE = ['age', 'density', 'summerP0', 'summerP1', 'summerP2']
         self.INTERACTIONS = [
-            'lon:TMarAug', 'lon:AugTmean', 'lon:AugTmax', 'lon:OctTmin',
-            'lon:Tmean', 'lon:TOctSep', 'lat:ddAugJul', 'lat:ddAugJun',
-            'density:summerP0', 'density:summerP1', 'density:summerP2',
-            'JanTmin:summerTmean', 'JanTmin:AugTmean', 'JanTmin:AugTmax',
-            'JanTmin:ddAugJul', 'JanTmin:ddAugJun', 'MarTmin:AugTmean',
-            'MarTmin:AugTmax', 'TMarAug:ddAugJul', 'TMarAug:ddAugJun',
-            'summerTmean:OctTmin', 'summerTmean:winterTmin', 'summerTmean:Tmin',
-            'summerTmean:ddAugJul', 'summerTmean:ddAugJun',
-            'AugTmean:winterTmin', 'AugTmean:ddAugJul', 'AugTmean:ddAugJun',
-            'AugTmax:ddAugJun', 'GSP:summerP0', 'GSP:summerP1', 'GSP:summerP2',
+            'lon:lat', 'lon:etopo1', 'lon:JanTmin', 'lon:GSP', 'lon:Tvar',
+            'lon:Pmean', 'lon:POctSep', 'lon:PcumOctSep', 'lon:PPT',
+            'lat:etopo1', 'lat:density', 'lat:JanTmin', 'lat:MarTmin',
+            'lat:TMarAug', 'lat:AugTmax', 'lat:PMarAug', 'lat:summerP0',
+            'lat:OctTmin', 'lat:fallTmean', 'lat:winterTmin', 'lat:Tmin',
+            'lat:Tmean', 'lat:TOctSep', 'lat:summerP1', 'lat:summerP2',
+            'etopo1:age', 'etopo1:MarTmin', 'etopo1:summerP0',
+            'etopo1:winterTmin', 'etopo1:Tmin', 'etopo1:Tmean',
+            'etopo1:TOctSep', 'etopo1:summerP2', 'density:JanTmin',
+            'density:MarTmin', 'density:TMarAug', 'density:AugTmax',
+            'density:PMarAug', 'density:summerP0', 'density:OctTmin',
+            'density:fallTmean', 'density:winterTmin', 'density:Tmin',
+            'density:Tmean', 'density:TOctSep', 'density:summerP1',
+            'density:summerP2', 'JanTmin:MarTmin', 'JanTmin:summerP0',
+            'JanTmin:OctTmin', 'JanTmin:fallTmean', 'JanTmin:winterTmin',
+            'JanTmin:Tmin', 'JanTmin:Tmean', 'JanTmin:TOctSep',
+            'JanTmin:summerP1', 'JanTmin:summerP2', 'JanTmin:Pmean',
+            'JanTmin:POctSep', 'JanTmin:PcumOctSep', 'JanTmin:PPT',
+            'MarTmin:TMarAug', 'MarTmin:AugTmax', 'MarTmin:summerP0',
+            'MarTmin:OctTmin', 'MarTmin:fallTmean', 'MarTmin:winterTmin',
+            'MarTmin:Tmin', 'MarTmin:Tmean', 'MarTmin:TOctSep',
+            'MarTmin:summerP1', 'MarTmin:summerP2', 'TMarAug:summerP0',
+            'TMarAug:Tmean', 'TMarAug:TOctSep', 'TMarAug:summerP2',
+            'summerTmean:Tmean', 'summerTmean:TOctSep', 'summerTmean:Pmean',
+            'summerTmean:PPT', 'AugTmean:Tmean', 'AugTmean:TOctSep',
+            'AugTmean:PPT', 'AugTmax:PMarAug', 'AugTmax:summerP0',
+            'AugTmax:fallTmean', 'AugTmax:Tmean', 'AugTmax:TOctSep',
+            'AugTmax:summerP1', 'AugTmax:summerP2', 'AugTmax:Pmean',
+            'AugTmax:POctSep', 'AugTmax:PcumOctSep', 'AugTmax:PPT', 'GSP:Tvar',
             'GSP:Pmean', 'GSP:POctSep', 'GSP:PcumOctSep', 'GSP:PPT',
-            'PMarAug:summerP0', 'PMarAug:summerP2', 'PMarAug:POctSep',
-            'PMarAug:PcumOctSep', 'PMarAug:PPT', 'OctTmin:ddAugJul',
-            'OctTmin:ddAugJun', 'fallTmean:ddAugJun', 'winterTmin:ddAugJul',
-            'winterTmin:ddAugJun', 'Tmin:ddAugJun', 'summerP1:POctSep',
-            'summerP1:PcumOctSep','summerP1:PPT']
+            'PMarAug:Tvar', 'PMarAug:summerP1', 'PMarAug:summerP2',
+            'PMarAug:Pmean', 'PMarAug:POctSep', 'PMarAug:PcumOctSep',
+            'PMarAug:PPT', 'summerP0:OctTmin', 'summerP0:fallTmean',
+            'summerP0:winterTmin', 'summerP0:Tmin', 'summerP0:Tmean',
+            'summerP0:TOctSep', 'summerP0:summerP1', 'summerP0:summerP2',
+            'OctTmin:summerP1', 'OctTmin:summerP2', 'fallTmean:winterTmin',
+            'fallTmean:Tmin', 'fallTmean:Tmean', 'fallTmean:TOctSep',
+            'fallTmean:summerP1', 'fallTmean:summerP2', 'winterTmin:Tmin',
+            'winterTmin:Tmean', 'winterTmin:TOctSep', 'winterTmin:summerP1',
+            'winterTmin:summerP2', 'winterTmin:Pmean', 'winterTmin:POctSep',
+            'winterTmin:PcumOctSep', 'winterTmin:PPT', 'Tmin:Tmean',
+            'Tmin:TOctSep', 'Tmin:summerP1', 'Tmin:summerP2', 'Tmin:POctSep',
+            'Tmin:PcumOctSep', 'Tmin:PPT', 'Tmean:TOctSep', 'Tmean:summerP1',
+            'Tmean:summerP2', 'Tvar:Pmean', 'Tvar:POctSep', 'Tvar:PcumOctSep',
+            'Tvar:PPT', 'TOctSep:summerP1', 'TOctSep:summerP2',
+            'summerP1:summerP2', 'summerP1:Pmean', 'summerP1:POctSep',
+            'summerP1:PcumOctSep', 'summerP1:PPT', 'summerP2:Pmean',
+            'summerP2:PPT', 'Pmean:POctSep', 'Pmean:PcumOctSep', 'Pmean:PPT',
+            'POctSep:PcumOctSep', 'POctSep:PPT', 'PcumOctSep:PPT']
+
         
     def construct_model_matrices(self):
         train_X_files = sorted(
@@ -56,7 +91,11 @@ class ModelMatrixConstructor:
         data_sets = [
             [X_train, y_train], [X_valid, y_valid], [X_test, y_test]]
         for i, [X, y] in enumerate(data_sets):
-            data_sets[i] = [self._add_all_cols(X), y]
+            X = self._fill_na(X, 'density')
+            X = X.loc[np.isnan(X['density']) == False, :]
+            X = self._add_all_cols(X.copy())
+            X.index = range(X.shape[0])
+            data_sets[i] = [X, y]
         return data_sets
 
     def _load_data_set(self, set_files):
@@ -65,6 +104,7 @@ class ModelMatrixConstructor:
         for f in set_files:
             next_chunk = pd.read_csv('%s/%s' % (self.DATA_DIR, f))
             data_set = data_set.append(next_chunk)
+        data_set.index = range(data_set.shape[0])
         return data_set
 
     def _add_all_cols(self, data_set):
@@ -91,6 +131,34 @@ class ModelMatrixConstructor:
             f1, f2 = field.split(':')
             data_set[field] = data_set[f1] * data_set[f2]
         return data_set
+
+    def _fill_na(self, df, field):
+        '''
+        Fills value by taking the average of cells above and below (or just 
+        one if both not available)
+        '''
+        print('Attempting to fill NAs with average of neighboring cells.')
+        iterations = 0
+        while sum(np.isnan(df[field])):
+            for i in range(df.shape[0]):
+                if np.isnan(df.loc[i, field]):
+                    use = []
+                    x = int(df.loc[i, 'x'])
+                    x_above = int(df.loc[i - 1, 'x']) if i > 0 else np.nan
+                    x_below = (int(df.loc[i + 1, 'x']) if i < df.shape[0] - 1
+                               else np.nan)
+                    if abs(x - x_above) == 1:
+                        use.append(x_above)
+                    if abs(x - x_below) == 1:
+                        use.append(x_below)
+                    if len(use):
+                        df.loc[i, field] = np.mean(use)
+            iterations += 1
+            if iterations > 2:
+                print('Could not fill %s for %d rows.'
+                      % (field, sum(np.isnan(df[field]))))
+                return df
+        return df
 
 
 # Test
