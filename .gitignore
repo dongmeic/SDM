@@ -3,6 +3,7 @@
 .DS_Store
 *~
 
+
 # Python/Jupyter
 #---------------------------
 *.pyc
@@ -15,6 +16,10 @@ __pycache__
 cluster/
 data/
 weights/
+images/
+outputs/
+bak/
+
 
 # Logs
 #---------------------------
