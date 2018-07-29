@@ -2,6 +2,8 @@ import os
 import sys
 import time
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -14,13 +16,13 @@ from sklearn.preprocessing import StandardScaler
 import model_utils as util
 from construct_model_matrices import ModelMatrixConstructor
 
-DATA_DIR = '../../data/Xy_internal_split_data'
-IMG_DIR = '../../images'
-OUT_DIR = '../../outputs'
+DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images'
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables'
 #REGULARIZER = 'l2'
 #BEST_C = 0.0005274997
 REGULARIZER = 'l1'
-BEST_C = 0.000527
+BEST_C = 0.0005274997
 
 def main():
     make_dirs()
