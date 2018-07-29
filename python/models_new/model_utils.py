@@ -133,10 +133,12 @@ def get_auc(target, preds):
     return { 'fpr': fpr, 'tpr': tpr, 'auc': mod_auc }
 
 
-def plot_roc(fpr, tpr):
+def plot_roc(fpr, tpr, path=''):
+    fig = plt.figure()
     plt.plot(fpr, tpr, 'k')
     plt.plot([0, 1], [0, 1], 'r')
     plt.xlabel('False Positive Rate (1 - Specificity)')
     plt.ylabel('True Positive Rate (Sensitivity)')
     plt.title('ROC Curve')
-    plt.show()
+    if path:
+        fig.savefig(path)
