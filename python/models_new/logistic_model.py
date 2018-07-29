@@ -17,12 +17,12 @@ import model_utils as util
 from construct_model_matrices import ModelMatrixConstructor
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
-IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images'
-OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables'
-#REGULARIZER = 'l2'
-#BEST_C = 0.0005274997
-REGULARIZER = 'l1'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/l2'
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/l2'
+REGULARIZER = 'l2'
 BEST_C = 0.0005274997
+#REGULARIZER = 'l1'
+#BEST_C = 0.0005274997
 
 def main():
     make_dirs()
