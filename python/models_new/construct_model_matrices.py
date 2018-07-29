@@ -63,7 +63,8 @@ class ModelMatrixConstructor:
             'summerP1:summerP2', 'summerP1:Pmean', 'summerP1:POctSep',
             'summerP1:PcumOctSep', 'summerP1:PPT', 'summerP2:Pmean',
             'summerP2:PPT', 'Pmean:POctSep', 'Pmean:PcumOctSep', 'Pmean:PPT',
-            'POctSep:PcumOctSep', 'POctSep:PPT', 'PcumOctSep:PPT']
+            'POctSep:PcumOctSep', 'POctSep:PPT', 'PcumOctSep:PPT',
+            'btl_t1:btl_t2']
 
         
     def construct_model_matrices(self):
@@ -91,10 +92,14 @@ class ModelMatrixConstructor:
         data_sets = [
             [X_train, y_train], [X_valid, y_valid], [X_test, y_test]]
         for i, [X, y] in enumerate(data_sets):
+            X = X.reindex()
+            y = y.reindex()
             X = self._fill_na(X, 'density')
+            y = y.loc[np.isnan(X['density']) == False, :]
             X = X.loc[np.isnan(X['density']) == False, :]
             X = self._add_all_cols(X.copy())
-            X.index = range(X.shape[0])
+            X = X.reindex()
+            y = y.reindex()
             data_sets[i] = [X, y]
         return data_sets
 
