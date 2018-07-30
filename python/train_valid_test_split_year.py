@@ -10,10 +10,10 @@ import pandas as pd
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/backcasting'
 OUTPUT_DIR = '%s/Xy_year_split_data' % DATA_DIR
 INPUT_FILE_FORMAT = r'input_data_[0-9]{4}\.csv$'
-years = [yr for yr in range(1996,2014)]
-test_years = years[0:3]
-valid_years = years[3:6]
-train_years = years[6:]
+years = [yr for yr in range(1996,2011)]
+test_years = years[0:2]
+valid_years = years[2:4]
+train_years = years[4:]
     
 def main():
     input_files = [f for f in os.listdir(DATA_DIR)
