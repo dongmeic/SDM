@@ -22,41 +22,64 @@ def main():
         file_path = '%s/%s' % (DATA_DIR, file_name)
         year = file_path.split('_')[-1].replace('.csv', '')
         dat = pd.read_csv(file_path)
-        split_data = split_data_year(dat, 'btl_t', cell_dim=10000)
+        split_data = split_data_year(dat, year, 'btl_t')
         if not save_files(year, split_data):
             print('Error saving files')
             sys.exit(1)
     print('Program completed.')
-    
-def split_data_year(dat, response, cell_dim):
-    data = dat.copy()
-		if year in train_years:
-		    X_train, y_train = split_predictors_response(data, response)		
-    else:
-        if year in valid_years:
-            X_valid, y_valid = split_predictors_response(data, response)
-        else:
-            X_test,  y_test  = split_predictors_response(data, response)
-		print_data_split(X_train, y_train, X_valid, y_valid, X_test, y_test)  
-    return [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]]
+
+def split_data_year(dat, year, response):
+		data = dat.copy()
+		if int(year) in train_years:
+			X_train, y_train = split_predictors_response(data, response)
+			print_data_split(X_train, y_train, 'train')
+			return [[X_train, y_train]]
+		else:
+		    if int(year) in valid_years:
+		        X_valid, y_valid = split_predictors_response(data, response)
+		        print_data_split(X_valid, y_valid, 'valid')
+		        return [[X_valid, y_valid]]
+		    else:
+		    		if int(year) in test_years:
+		    				X_test,  y_test  = split_predictors_response(data, response)
+		    				print_data_split(X_test, y_test, 'test')
+		    				return [[X_test, y_test]]
 
 def split_predictors_response(dat, response):
     data = dat.copy()
     y = data.loc[:, response]
+    y = pd.DataFrame(y)
     X = data.drop(response, axis=1)
     return X, y
    
 def save_files(year, split_data):
     if not os.path.exists(OUTPUT_DIR):
         os.mkdir(OUTPUT_DIR)
-    set_names = ['test', 'valid', 'train']
+    if int(year) in train_years:
+    		set_name = 'train'
+    else:
+    		if int(year) in valid_years:
+    				set_name ='valid'
+    		else:
+    				if int(year) in test_years:
+    						set_name ='test'
     xy_names = ['X', 'y']
-    for data_set, set_name in zip(split_data, set_names):
+    for data_set in split_data:
         for xy, xy_name in zip(data_set, xy_names):
             path = '%s/%s_%s_%s.csv' % (OUTPUT_DIR, xy_name, set_name, year)
             print('Writing data to ', path)
             xy.to_csv(path, index=False)
     return True
 
+def print_data_split(X,y,set):
+    print('Data split into:\n X: %s  y: %s in the %s data set'
+          % (X.shape, y.shape, set))
+    print_ranges(X)
+
+    
+def print_ranges(data):
+        print(' x range: [%s, %s]\ty range: [%s, %s]'
+              % (data.x.min(), data.x.max(), data.y.min(), data.y.max()))
+              
 if __name__ == '__main__':
     main()

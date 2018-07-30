@@ -2,7 +2,8 @@
 library(mgcv)
 
 
-DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
+#DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
+DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/backcasting/Xy_year_split_data'
 setwd("/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/gam")
 
 merge.files <- function(set=c('train', 'valid', 'test')) {

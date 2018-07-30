@@ -24,7 +24,7 @@ foreach (i=1:(nyr-2))%dopar%{
   df <- cbind(loc[,-6], btlprs[,c(paste0("prs_", years[i+1]), paste0("prs_", years[i+2]), paste0("prs_", (years[i]+3)),"vegetation")],
   						btlsum9[,c(paste0("sum9_", years[i+2]), paste0("sum9_", (years[i]+3)))], var[, -which(colnames(var) %in% c("min30", "drop0", "drop5"))])
   colnames(df)[6:9] <- c("btl_t", "btl_t1", "btl_t2", "vgt")
-  colnames(df)[12:13] <- c("sum9_t1","sum9_t2")
+  colnames(df)[10:11] <- c("sum9_t1","sum9_t2")
   df$year <- rep(years[i], dim(df)[1])
   df <- cbind(subset(df, select=c("btl_t")), df[ , -which(colnames(df) %in% c("btl_t"))])
   # bounding box
