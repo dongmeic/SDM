@@ -17,11 +17,11 @@ import model_utils as util
 from construct_model_matrices import ModelMatrixConstructor
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
-IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/l2'
-OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/l2'
-REGULARIZER = 'l2'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/l1'
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/l1'
+#REGULARIZER = 'l2'
 BEST_C = 0.0005274997
-#REGULARIZER = 'l1'
+REGULARIZER = 'l1'
 #BEST_C = 0.0005274997
 
 def main():
@@ -88,6 +88,7 @@ def main():
     coefs = coefs.drop(['abs'], axis=1)
     print(coefs)
     coefs.to_csv('%s/coefficients.csv' % OUT_DIR, index=False)
+    print('\n\nModel intercept:', logistic_clf.intercept_)
 
     pred_ps_train = logistic_clf.predict_proba(X_train)
     pred_ps_train = np.array([p[1] for p in pred_ps_train])
