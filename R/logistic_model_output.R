@@ -1,6 +1,6 @@
 # Created by Dongmei Chen
 # Plot and map the impacts of predictors on the beetle probability
-# run on an interactive mode
+# tested on an interactive mode
 
 library(ncdf4)
 library(lattice)
@@ -11,6 +11,8 @@ library(latticeExtra)
 library(gridExtra)
 library(RColorBrewer)
 library(animation)
+install.packages("classInt", repos='http://cran.us.r-project.org')
+library(classInt)
 
 DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
 setwd('/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/glm')
@@ -88,111 +90,110 @@ coeffs <- coefficients[abs(coefficients$coef) > 0,]
 all(coeffs$predictor == medians$predictor)
 coeffs$cons <- coeffs$coef * medians$median; coeffs$cons
 # use one year data
-#data1 <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input_data_2009.csv", stringsAsFactors = FALSE)
+#data2 <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input_data_2009.csv", stringsAsFactors = FALSE)
 data1 <- data[data$year==2009,]
-# test on minimum winter temperature
-x <- data1$winterTmin
-y <- sum(coeffs$cons)-0.315128553*scale(x^2)-1.72935019-0.1069022594
-y1 <- exp(y)/(1+exp(y))
-png("winterTmin.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Minimum winter temperature", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-# ddAugJul
-x <- data1$ddAugJul
-y <- sum(coeffs$cons)-0.195761379*scale(x)-1.72935019-0.0595355921
-y1 <- exp(y)/(1+exp(y))
-png("ddAugJul.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Day degrees", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-dt <- cbind(data.frame(btl_t=data$btl_t), predictors[,singles])
-hist(dt[dt$btl_t == 1,]$ddAugJul)
-# fallTmean
-x <- data1$fallTmean
-y <- sum(coeffs$cons)-0.104098872*scale(x^2)-0.060015740*scale(x*median(data1$summerP1))-0.014053525*scale(x*median(data1$Tmean))-1.72935019-0.0377606870-0.0141800769-0.0051272637
-y1 <- exp(y)/(1+exp(y))
-png("fallTmean.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Mean temperature in the Fall", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-hist(dt[dt$btl_t == 1,]$fallTmean)
-# age
-x <- data1$age
-y <- sum(coeffs$cons)+0.050150919*scale(x)+0.0342156105-1.72935019
-y1 <- exp(y)/(1+exp(y))
-png("age.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Stand age", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-# density
-x <- data1$density
-y <- sum(coeffs$cons)+0.114451743*scale(x*median(data1$TOctSep))+0.028270702*scale(x*median(data1$AugTmax))-0.009827704*scale(x*median(data1$OctTmin))+0.0346628659+0.0078639212+0.0018600826-1.72935019
-y1 <- exp(y)/(1+exp(y))
-png("density.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Tree density", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-# summerP1
-x <- data1$summerP1
-y <- sum(coeffs$cons)-0.060015740*scale(x*median(data1$fallTmean))-0.034204228*scale(x*median(data1$AugTmax))-0.0141800769-0.0005781264-1.72935019
-y1 <- exp(y)/(1+exp(y))
-png("summerP1.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Summer precipitation", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-# AugTmax
-x <- data1$AugTmax
-y <- sum(coeffs$cons)-0.034204228*scale(x*median(data1$summerP1))+0.028270702*scale(x*median(data1$density, na.rm=T))-0.0005781264+0.0078639212-1.72935019
-y1 <- exp(y)/(1+exp(y))
-png("AugTmax.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Maximum August temperature", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-# OctTmin
-x <- data1$OctTmin
-y <- sum(coeffs$cons)-0.062630669*scale(x)-0.009827704*scale(x*median(data1$density, na.rm=T))-1.72935019-0.0146391775+0.0018600826
-y1 <- exp(y)/(1+exp(y))
-png("OctTmin.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Minimum October temperature", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-# TOctSep
-x <- data1$TOctSep
-y <- sum(coeffs$cons)+0.114451743*scale(x*median(data1$density, na.rm=T))+0.0346628659-1.72935019
-y1 <- exp(y)/(1+exp(y))
-png("TOctSep.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Water-year temperature", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
-#PMarAug
-x <- data1$PMarAug
-y <- sum(coeffs$cons)-0.044948108*scale(x^2)-1.72935019-0.0097848475
-y1 <- exp(y)/(1+exp(y))
-png("PMarAug.png", width=6, height=5, units="in", res=300)
-par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
-plot(x, y1, xlab="Precipitation from March to August", ylab="Beetle probability", pch=19, cex=0.05)
-dev.off()
+
+shppath <- "/gpfs/projects/gavingrp/dongmeic/beetle/shapefiles"
+canada.prov <- readOGR(dsn = shppath, layer = "na10km_can_prov")
+us.states <- readOGR(dsn = shppath, layer = "na10km_us_state")
+crs <- proj4string(us.states)
+lrglakes <- readOGR(dsn = shppath, layer = "na10km_lrglakes")
+proj4string(lrglakes) <- crs
 
 lonlat <- CRS("+proj=longlat +datum=NAD83")
-crs <- CRS("+proj=laea +lat_0=50 +lon_0=-100 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0")
 df <- data1
-df$y <- y1
 xy <- data.frame(df[,c(4,5)])
 coordinates(xy) <- c('lon', 'lat')
 proj4string(xy) <- lonlat
 spdf <- SpatialPointsDataFrame(coords = xy, data = df, proj4string = lonlat)
 spdf <- spTransform(spdf, crs)
-install.packages("classInt", repos='http://cran.us.r-project.org')
-library(classInt)
-plotvar <- y1
+spdf1 <- spdf[spdf$btl_t==1,]
+
 nclr <- 5
 color <- "RdYlGn"
 plotclr <- rev(brewer.pal(nclr,color))
-class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=2)
-colcode <- findColours(class, plotclr)
-plot(spdf, col=colcode, pch=19, cex=0.05)
-legend.title <- "By summerP"
-legend("left", legend=names(attr(colcode, "table")),
-         fill=attr(colcode, "palette"), cex=1.2, title=legend.title, bty="n")
+vars <- c('winterTmin', 'ddAugJul', 'fallTmean', 'age', 'density', 'summerP1', 'AugTmax', 'OctTmin', 'TOctSep', 'PMarAug')
+varnames <- c('Minimum winter temperature', 'Day degrees', 'Mean temperature in the Fall', 'Stand age', 'Tree density',
+							'Summer precipitation', 'Maximum August temperature', 'Minimum October temperature', 
+							'Water-year mean temperature', 'Precipitation from March to August')
+							
+probmapping <- function(var){
+	plotvar <- prob.df[,var]
+	class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=2)
+	colcode <- findColours(class, plotclr)
+	png(paste0(var,"_map.png"), width=7, height=5, units="in", res=300)
+	par(mfrow=c(1,1),mar=c(0.5,8,1.5,0))
+	plot(spdf, col=colcode, main="Beetle probability predicted", pch=19, cex=0.1)
+	plot(spdf1, pch=19, cex=0.1, col=rgb(0,0,1,0.1),add=T)
+	#plot(canada.prov, col=rgb(0.7,0.7,0.7,0.7), add=T)
+	#plot(us.states, col=rgb(0.7,0.7,0.7,0.7), add=T)
+	#plot(lrglakes, border=rgb(0,0,0.3,0.1),add=T)
+	legend.title <- paste("By", var)
+	legend(-3500000, 1050000,legend=names(attr(colcode, "table")),
+					 fill=attr(colcode, "palette"), cex=1.2, title=legend.title, bty="n")
+	dev.off()
+}
 
+probplotting <- function(var){
+		x <- data1[,var]
+		y1 <- prob.df[,var]
+		png(paste0(var,".png"), width=6, height=5, units="in", res=300)
+		par(mfrow=c(1,1),mar=c(4.5,4.5,1,1))
+		plot(x, y1, xlab=varnames[which(vars==var)], ylab="Beetle probability", pch=19, cex=0.05)
+		dev.off()
+}
+
+# test on minimum winter temperature
+x <- data1$winterTmin
+y <- sum(coeffs$cons)-0.315128553*scale(x^2)-1.72935019-0.1069022594
+y1 <- exp(y)/(1+exp(y))
+dev.off()
+# ddAugJul
+x <- data1$ddAugJul
+y <- sum(coeffs$cons)-0.195761379*scale(x)-1.72935019-0.0595355921
+y2 <- exp(y)/(1+exp(y))
+#hist(dt[dt$btl_t == 1,]$ddAugJul)
+# fallTmean
+x <- data1$fallTmean
+y <- sum(coeffs$cons)-0.104098872*scale(x^2)-0.060015740*scale(x*median(data1$summerP1))-0.014053525*scale(x*median(data1$Tmean))-1.72935019-0.0377606870-0.0141800769-0.0051272637
+y3 <- exp(y)/(1+exp(y))
+#hist(dt[dt$btl_t == 1,]$fallTmean)
+# age
+x <- data1$age
+y <- sum(coeffs$cons)+0.050150919*scale(x)+0.0342156105-1.72935019
+y4 <- exp(y)/(1+exp(y))
+# density
+x <- data1$density
+y <- sum(coeffs$cons)+0.114451743*scale(x*median(data1$TOctSep))+0.028270702*scale(x*median(data1$AugTmax))-0.009827704*scale(x*median(data1$OctTmin))+0.0346628659+0.0078639212+0.0018600826-1.72935019
+y5 <- exp(y)/(1+exp(y))
+# summerP1
+x <- data1$summerP1
+y <- sum(coeffs$cons)-0.060015740*scale(x*median(data1$fallTmean))-0.034204228*scale(x*median(data1$AugTmax))-0.0141800769-0.0005781264-1.72935019
+y6 <- exp(y)/(1+exp(y))
+# AugTmax
+x <- data1$AugTmax
+y <- sum(coeffs$cons)-0.034204228*scale(x*median(data1$summerP1))+0.028270702*scale(x*median(data1$density, na.rm=T))-0.0005781264+0.0078639212-1.72935019
+y7 <- exp(y)/(1+exp(y))
+# OctTmin
+x <- data1$OctTmin
+y <- sum(coeffs$cons)-0.062630669*scale(x)-0.009827704*scale(x*median(data1$density, na.rm=T))-1.72935019-0.0146391775+0.0018600826
+y8 <- exp(y)/(1+exp(y))
+# TOctSep
+x <- data1$TOctSep
+y <- sum(coeffs$cons)+0.114451743*scale(x*median(data1$density, na.rm=T))+0.0346628659-1.72935019
+y9 <- exp(y)/(1+exp(y))
+#PMarAug
+x <- data1$PMarAug
+y <- sum(coeffs$cons)-0.044948108*scale(x^2)-1.72935019-0.0097848475
+y10 <- exp(y)/(1+exp(y))
+prob.df <- data.frame(cbind(y1,y2,y3,y4,y5,y6,y7,y8,y9,y10))
+colnames(prob.df) <- vars
+
+# make plots and maps
+for(i in 1:length(vars)){
+	probplotting(vars[i])
+	probmapping(vars[i])
+	cat(sprintf('Completed %s ...\n', vars[i]))
+}
+
+print("all done!")
