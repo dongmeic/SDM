@@ -346,13 +346,56 @@ for(i in 1:length(vars)){
 }
 
 # mapping impacts of forest stand age and tree density
+year <- 2009
+data1 <- data[data$year==year,]
 y <- predicted(lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
-								age=coeffs$coef[13]*scale(x),
-								density_TOctSep=coeffs$coef[8]*scale(x*median(data1$TOctSep,na.rm=T)),
-								density_AugTmax=coeffs$coef[16]*scale(x*median(data1$AugTmax,na.rm=T)),
-								density_OctTmin=coeffs$coef[19]*scale(x*median(data1$OctTmin,na.rm=T)))
+								age=coeffs$coef[13]*scale(data1$age),
+								density_TOctSep=coeffs$coef[8]*scale(data1$density*median(data1$TOctSep,na.rm=T)),
+								density_AugTmax=coeffs$coef[16]*scale(data1$density*median(data1$AugTmax,na.rm=T)),
+								density_OctTmin=coeffs$coef[19]*scale(data1$density*median(data1$OctTmin,na.rm=T)))
+y11 <- exp(y)/(1+exp(y))
+spdf <- get.spdf()
+spdf1 <- spdf[spdf$btl_t==1,]
+plotvar <- y11
+class <- classIntervals(plotvar, nclr, style="kmeans",dataPrecision=2)
+colcode <- findColours(class, plotclr)
+png("sdm_map_forest.png", width=8, height=5, units="in", res=300)
+par(mfrow=c(1,1),mar=c(0.5,8,1.5,0))
+plot(spdf, col=colcode, main=paste("Beetle probability predicted in", year), pch=19, cex=0.1)
+plot(spdf1, pch=19, cex=0.1, col=rgb(0,0,1,0.1),add=T)
+legend.title <- "By forest vars"
+legend(-3500000, 1050000,legend=names(attr(colcode, "table")),
+				 fill=attr(colcode, "palette"), cex=1.2, title=legend.title, bty="n")
+dev.off()
 
+y <- predicted(lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
+								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
+								lon=coeffs$coef[20]*scale(data1$lon),
+								winterTmin_sq=coeffs$coef[4]*scale(data1$winterTmin^2),
+								ddAugJul=coeffs$coef[7]*scale(data1$ddAugJul),
+								fallTmean_sq=coeffs$coef[9]*scale(data1$fallTmean^2),
+								fallTmean_summerP1=coeffs$coef[11]*scale(data1$fallTmean*data1$summerP1),
+								fallTmean_Tmean=coeffs$coef[18]*scale(data1$fallTmean*data1$Tmean),
+								AugTmax_summerP1=coeffs$coef[15]*scale(data1$summerP1*data1$AugTmax),
+								density_AugTmax=coeffs$coef[16]*scale(data1$AugTmax*median(data1$density,na.rm=T)),
+								OctTmin=coeffs$coef[10]*scale(data1$OctTmin),
+								density_OctTmin=coeffs$coef[19]*scale(data1$OctTmin*median(data1$density,na.rm=T)),
+								density_TOctSep=coeffs$coef[8]*scale(data1$TOctSep*median(data1$density,na.rm=T)),
+								MarTmin_TOctSep=coeffs$coef[22]*scale(data1$MarTmin*data1$TOctSep),
+								PMarAug_sq=coeffs$coef[14]*scale(data1$PMarAug^2))
+y12 <- exp(y)/(1+exp(y))
+plotvar <- y12
+class <- classIntervals(plotvar, nclr, style="kmeans",dataPrecision=2)
+colcode <- findColours(class, plotclr)
+png("sdm_map_climate.png", width=7, height=5, units="in", res=300)
+par(mfrow=c(1,1),mar=c(0.5,8,1.5,0))
+plot(spdf, col=colcode, main=paste("Beetle probability predicted in", year), pch=19, cex=0.1)
+plot(spdf1, pch=19, cex=0.1, col=rgb(0,0,1,0.1),add=T)
+legend.title <- "By climate"
+legend(-3500000, 1050000,legend=names(attr(colcode, "table")),
+				 fill=attr(colcode, "palette"), cex=1.2, title=legend.title, bty="n")
+dev.off()
 
 print("all done!")
