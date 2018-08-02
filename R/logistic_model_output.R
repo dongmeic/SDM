@@ -16,7 +16,7 @@ library(classInt)
 years <- 1998:2015
 
 DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
-setwd('/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/glm')
+setwd('/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/glm/kmeans')
 # merge all data tables
 merge.files <- function() {
   set=c('train', 'valid', 'test')
@@ -109,10 +109,10 @@ vars <- c('winterTmin', 'ddAugJul', 'fallTmean', 'age', 'density', 'summerP1', '
 varnames <- c('Minimum winter temperature', 'Day degrees', 'Mean temperature in the Fall', 'Stand age', 'Tree density',
 							'Summer precipitation', 'Maximum August temperature', 'Minimum October temperature', 
 							'Water-year mean temperature', 'Precipitation from March to August')
-							
+						
 probmapping <- function(var,year){
 	plotvar <- prob.df2[,var]
-	class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=2)
+	class <- classIntervals(plotvar, nclr, style="kmeans",dataPrecision=2)
 	colcode <- findColours(class, plotclr)
 	png(paste0(var,"_",year,"_map.png"), width=7, height=5, units="in", res=300)
 	par(mfrow=c(1,1),mar=c(0.5,8,1.5,0))
@@ -219,7 +219,7 @@ get.y <- function(){
 get.yy <- function(){
 	# test on minimum winter temperature
 	x <- data1$winterTmin
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -227,7 +227,7 @@ get.yy <- function(){
 	y1 <- exp(y)/(1+exp(y))
 	# ddAugJul
 	x <- data1$ddAugJul
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -236,7 +236,7 @@ get.yy <- function(){
 	#hist(dt[dt$btl_t == 1,]$ddAugJul)
 	# fallTmean
 	x <- data1$fallTmean
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -247,7 +247,7 @@ get.yy <- function(){
 	#hist(dt[dt$btl_t == 1,]$fallTmean)
 	# age
 	x <- data1$age
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -255,7 +255,7 @@ get.yy <- function(){
 	y4 <- exp(y)/(1+exp(y))
 	# density
 	x <- data1$density
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -265,7 +265,7 @@ get.yy <- function(){
 	y5 <- exp(y)/(1+exp(y))
 	# summerP1
 	x <- data1$summerP1
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -274,7 +274,7 @@ get.yy <- function(){
 	y6 <- exp(y)/(1+exp(y))
 	# AugTmax
 	x <- data1$AugTmax
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -283,7 +283,7 @@ get.yy <- function(){
 	y7 <- exp(y)/(1+exp(y))
 	# OctTmin
 	x <- data1$OctTmin
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -292,7 +292,7 @@ get.yy <- function(){
 	y8 <- exp(y)/(1+exp(y))
 	# TOctSep
 	x <- data1$TOctSep
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -301,7 +301,7 @@ get.yy <- function(){
 	y9 <- exp(y)/(1+exp(y))
 	#PMarAug
 	x <- data1$PMarAug
-	y <- predicted(vgt=coeffs$coef[2]*scale(data1$vgt),
+	y <- predicted(
 								lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
 								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
 								lon=coeffs$coef[20]*scale(data1$lon),
@@ -344,4 +344,15 @@ for (yr in 1:length(years)){
 for(i in 1:length(vars)){
 	im.convert(paste0(vars[i],"_*_map.png"),output=paste0(vars[i],"_maps.gif"))
 }
+
+# mapping impacts of forest stand age and tree density
+y <- predicted(lat_etopo1=coeffs$coef[12]*scale(data1$lat*data1$etopo1),
+								lon_sq=coeffs$coef[17]*scale(data1$lon^2),
+								lon=coeffs$coef[20]*scale(data1$lon),
+								age=coeffs$coef[13]*scale(x),
+								density_TOctSep=coeffs$coef[8]*scale(x*median(data1$TOctSep,na.rm=T)),
+								density_AugTmax=coeffs$coef[16]*scale(x*median(data1$AugTmax,na.rm=T)),
+								density_OctTmin=coeffs$coef[19]*scale(x*median(data1$OctTmin,na.rm=T)))
+
+
 print("all done!")
