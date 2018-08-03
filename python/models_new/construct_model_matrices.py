@@ -65,7 +65,23 @@ class ModelMatrixConstructor:
             'summerP2:PPT', 'Pmean:POctSep', 'Pmean:PcumOctSep', 'Pmean:PPT',
             'POctSep:PcumOctSep', 'POctSep:PPT', 'PcumOctSep:PPT',
             'btl_t1:btl_t2']
+        self.DROP = None
 
+    def set_squares(self, squares):
+        squares = squares if isinstance(squares, list) else [squares]
+        self.SQUARE = squares
+
+    def set_cubes(self, cubes):
+        cubes = cubes if isinstance(cubes, list) else [cubes]
+        self.CUBE = cubes
+
+    def set_interactions(self, interactions):
+        interactions = (interactions if isinstance(interactions, list)
+                        else [interactions])
+        self.INTERACTIONS = interactions
+
+    def set_drop_columns(self, drops):
+        self.DROP = drops if isinstance(drops, list) else [drops]
         
     def construct_model_matrices(self):
         train_X_files = sorted(
@@ -89,14 +105,20 @@ class ModelMatrixConstructor:
         y_train = self._load_data_set(train_y_files)
         y_valid = self._load_data_set(valid_y_files)
         y_test  = self._load_data_set(test_y_files)
+
+        if self.DROP:
+            X_train = X_train.drop(self.DROP, axis=1)
+            X_valid = X_valid.drop(self.DROP, axis=1)
+            X_test  = X_test.drop(self.DROP,  axis=1)
         data_sets = [
             [X_train, y_train], [X_valid, y_valid], [X_test, y_test]]
         for i, [X, y] in enumerate(data_sets):
             X = X.reindex()
             y = y.reindex()
-            X = self._fill_na(X, 'density')
-            y = y.loc[np.isnan(X['density']) == False, :]
-            X = X.loc[np.isnan(X['density']) == False, :]
+            if 'density' in list(X):
+                X = self._fill_na(X, 'density')
+                y = y.loc[np.isnan(X['density']) == False, :]
+                X = X.loc[np.isnan(X['density']) == False, :]
             X = self._add_all_cols(X.copy())
             X = X.reindex()
             y = y.reindex()
@@ -133,8 +155,13 @@ class ModelMatrixConstructor:
     def _add_interactions(self, data_set):
         print('Adding interactions...')
         for field in self.INTERACTIONS:
-            f1, f2 = field.split(':')
-            data_set[field] = data_set[f1] * data_set[f2]
+            fields = field.split(':')
+            if len(fields) == 2:
+                f1, f2 = fields
+                data_set[field] = data_set[f1] * data_set[f2]
+            elif len(fields) == 3:
+                f1, f2, f3 = fields
+                data_set[field] = data_set[f1] * data_set[f2] * data_set[f3]
         return data_set
 
     def _fill_na(self, df, field):
