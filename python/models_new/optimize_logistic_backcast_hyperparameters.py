@@ -10,8 +10,8 @@ from sklearn.preprocessing import StandardScaler
 import model_utils as util
 from construct_model_matrices import ModelMatrixConstructor
 
-DATA_DIR = '../../data/Xy_year_split_data'
-IMG_DIR = '../../images'
+DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/backcasting/Xy_year_split_data'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/backcast'
 SQUARE = [
     'lon', 'lat', 'etopo1', 'JanTmin', 'MarTmin', 'TMarAug', 'summerTmean',
     'AugTmean', 'AugTmax', 'GSP', 'PMarAug', 'summerP0', 'OctTmin',
