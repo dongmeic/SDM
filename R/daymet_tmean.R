@@ -10,8 +10,11 @@ read.tif <- function(vtype, year, doy){
 	raster(indata)
 }
 
+mainDir <- "/gpfs/projects/gavingrp/dongmeic/daymet/"
+subDir <- "/tmean"
 ptm <- proc.time()
 for(year in 1997:2015){ # run 1996 mannually first
+	dir.create(file.path(mainDir,year,subDir), showWarnings = FALSE)
 	infolder <- paste0("/gpfs/projects/gavingrp/dongmeic/daymet/", year, "/tmean/")
 	dir.create(file.path(infolder), showWarnings = FALSE)
 	for(doy in 1:365){
@@ -25,3 +28,5 @@ for(year in 1997:2015){ # run 1996 mannually first
 	print(paste("processed",year,"..."))
 }
 proc.time() - ptm
+
+print("all done!")
