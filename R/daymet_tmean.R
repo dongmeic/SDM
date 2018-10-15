@@ -23,7 +23,7 @@ for(year in c(1990:1995,1999:2015)){
 	dir.create(file.path(infolder), showWarnings = FALSE)
 	for(doy in 260:365){
 		if(!file.exists(daymet("tmax", year, doy)) | !file.exists(daymet("tmin", year, doy))){
-			if(!file.exists(daymet("tmax", year, doy)){
+			if(!file.exists(daymet("tmax", year, doy))){
 				print(paste(daymet("tmax", year, doy), "does not exist!"))
 			}else{
 				print(paste(daymet("tmin", year, doy), "does not exist!"))
