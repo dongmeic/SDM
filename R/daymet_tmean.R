@@ -3,9 +3,13 @@ library(rgdal)
 install.packages("tiff", repos='http://cran.us.r-project.org')
 library(tiff)
 
+substrRight <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+
 daymet <- function(vtype, year, doy){
 	infolder <- paste0("/gpfs/projects/gavingrp/dongmeic/daymet/", year, "/", vtype, "/")
-	file <- paste0(vtype, year %% 100, formatC(doy, width = 3, format = "d", flag = "0"), ".tif")
+	file <- paste0(vtype, substrRight(as.character(year), 2), formatC(doy, width = 3, format = "d", flag = "0"), ".tif")
 	paste0(infolder, file)
 }
 
