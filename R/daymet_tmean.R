@@ -1,6 +1,5 @@
 library(raster)
 library(rgdal)
-install.packages("tiff", repos='http://cran.us.r-project.org')
 library(tiff)
 
 substrRight <- function(x, n){
@@ -22,7 +21,7 @@ read.tif <- function(vtype, year, doy){
 }
 
 ptm <- proc.time()
-for(year in c(1992:1995,1999:2015)){
+for(year in c(2000:2009)){
 	infolder <- paste0("/gpfs/projects/gavingrp/dongmeic/daymet/", year, "/tmean/")
 	dir.create(file.path(infolder), showWarnings = FALSE)
 	for(doy in 1:365){
