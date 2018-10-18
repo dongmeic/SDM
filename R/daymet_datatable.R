@@ -32,7 +32,7 @@ ptm <- proc.time()
 for(vtype in c("tmin")){
 	infolder <- paste0("/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/", vtype)
 	dir.create(file.path(infolder), showWarnings = FALSE)
-	for(year in c(1994:2015)){
+	for(year in c(1995:2015)){
 		df <- as.data.frame(matrix(,ncol=0,nrow=77369))
 		pdf(paste0(vtype, year, ".pdf"), width=12, height=6)
 		for(doy in 1:365){

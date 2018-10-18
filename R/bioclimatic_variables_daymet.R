@@ -1,7 +1,6 @@
 # Created by Dongmei Chen
 # Writing daily bioclimatic variables
 
-library(ncdf4)
 library(parallel)
 library(doParallel)
 library(foreach)
@@ -13,9 +12,9 @@ setwd(inpath)
 start_year <- 1995; end_year <- 2015; years <- start_year:end_year; nt <- length(years)
 
 print("calculating the biocliamtic variables using daily data")
-ptm <- proc.time()
 dim1 <- 77369; dim2 <- nt
 
+ptm <- proc.time()
 foreach(i = 1:nt)%dopar%{
 	tmax.df.1 <- read.csv(paste0(inpath, "tmax/tmax", years[i],".csv"))
 	tmax.df.2 <- read.csv(paste0(inpath, "tmax/tmax", years[i+1],".csv"))
@@ -36,7 +35,7 @@ foreach(i = 1:nt)%dopar%{
 		df[j,] <- get.daily.stats(years[i], df.d$tmx, df.d$tmp, df.d$tmn)
 	}
 	print(paste("got data from", years[i+1]))
-	write.csv(df, paste0("daymet_bioclimatic_variables_",years[i+1],".csv"), row.names = FALSE)  
+	write.csv(df, paste0("daily_climate/Daymet/daymet_bioclimatic_variables_",years[i+1],".csv"), row.names = FALSE)  
 }
 proc.time() - ptm
 print("all done!")
