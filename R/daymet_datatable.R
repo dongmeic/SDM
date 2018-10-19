@@ -29,10 +29,10 @@ roi.df <- roi.shp@data[,-1]
 
 ptm <- proc.time()
 #for(vtype in c("tmean", "tmax", "tmin")){
-for(vtype in c("tmin")){
+for(vtype in c("prcp")){
 	infolder <- paste0("/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/", vtype)
 	dir.create(file.path(infolder), showWarnings = FALSE)
-	for(year in c(1995:2015)){
+	for(year in c(2002:2015)){
 		df <- as.data.frame(matrix(,ncol=0,nrow=77369))
 		pdf(paste0(vtype, year, ".pdf"), width=12, height=6)
 		for(doy in 1:365){

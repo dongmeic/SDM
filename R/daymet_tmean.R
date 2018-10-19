@@ -37,7 +37,7 @@ for(year in c(2000:2009)){
 			tmin <- read.tif("tmin", year, doy)
 			if(extent(tmax) == extent(tmin)){
 				tmean <- (tmax + tmin)/2
-				file <- paste0("tmean", year %% 100, formatC(doy, width = 3, format = "d", flag = "0"), ".tif")
+				file <- paste0("tmean", substrRight(as.character(year), 2), formatC(doy, width = 3, format = "d", flag = "0"), ".tif")
 				writeRaster(tmean, filename=paste0(infolder, file), datatype='INT4S', overwrite=TRUE)
 				print(doy)
 			}else{
