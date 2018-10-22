@@ -9,7 +9,7 @@ registerDoParallel(cores=28)
 source("/gpfs/projects/gavingrp/dongmeic/climate-space/R/damian/getStatsFromDaily.R")
 inpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/"
 setwd(inpath)
-start_year <- 1995; end_year <- 2006; years <- start_year:end_year; nt <- length(years)
+start_year <- 1995; end_year <- 2015; years <- start_year:end_year; nt <- length(years)
 
 print("calculating the biocliamtic variables using daily data")
 dim1 <- 77369; dim2 <- nt
