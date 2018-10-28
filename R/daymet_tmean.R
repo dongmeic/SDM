@@ -21,10 +21,10 @@ read.tif <- function(vtype, year, doy){
 }
 
 ptm <- proc.time()
-for(year in c(2000:2009)){
+for(year in c(2008)){
 	infolder <- paste0("/gpfs/projects/gavingrp/dongmeic/daymet/", year, "/tmean/")
 	dir.create(file.path(infolder), showWarnings = FALSE)
-	for(doy in 1:365){
+	for(doy in c(1:84)){
 		if(!file.exists(daymet("tmax", year, doy)) | !file.exists(daymet("tmin", year, doy))){
 			if(!file.exists(daymet("tmax", year, doy))){
 				print(paste(daymet("tmax", year, doy), "does not exist!"))

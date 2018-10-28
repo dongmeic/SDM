@@ -1,22 +1,16 @@
 # Created by Dongmei Chen
 # Writing daily bioclimatic variables
 
-library(parallel)
-library(doParallel)
-library(foreach)
-registerDoParallel(cores=28)
-
 source("/gpfs/projects/gavingrp/dongmeic/climate-space/R/damian/getStatsFromDaily.R")
 inpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/"
 setwd(inpath)
-start_year <- 1995; end_year <- 2015; years <- start_year:end_year; nt <- length(years)
+start_year <- 2008; end_year <- 2009; years <- start_year:end_year; nt <- length(years)
 
 print("calculating the biocliamtic variables using daily data")
 dim1 <- 77369; dim2 <- nt
 
 ptm <- proc.time()
-#foreach(i = 1:nt)%dopar%{
-for(i in 1:nt){
+for(i in 1:(nt-1)){
 	tmax.df.1 <- read.csv(paste0(inpath, "tmax/tmax", years[i],".csv"))
 	tmax.df.2 <- read.csv(paste0(inpath, "tmax/tmax", years[i+1],".csv"))
 	tmin.df.1 <- read.csv(paste0(inpath, "tmin/tmin", years[i],".csv"))
@@ -32,10 +26,17 @@ for(i in 1:nt){
 		tmx <- c(as.numeric(tmax.df.1[j,3:367]), as.numeric(tmax.df.2[j,3:367]))
 		tmp <- c(as.numeric(tmean.df.1[j,3:367]), as.numeric(tmean.df.2[j,3:367]))
 		tmn <- c(as.numeric(tmin.df.1[j,3:367]), as.numeric(tmin.df.2[j,3:367]))
-		df[j,] <- get.daily.stats(years[i], tmx, tmp, tmn)
+		if(sum(is.na(tmx))==0 && sum(is.na(tmn))==0){
+			df[j,] <- get.daily.stats(years[i], tmx, tmp, tmn)
+		}else{
+			if(sum(is.na(tmx))!=730){
+				print(paste("at the point of x(", tmax.df.1[j,1], ") and y(", tmax.df.1[j,2], ")..."))
+			}	
+			df[j,] <- NA
+		}
 	}
 	print(paste("got data from", years[i+1]))
 	write.csv(df, paste0("daily_climate/Daymet/daymet_bioclimatic_variables_",years[i+1],".csv"), row.names = FALSE)  
 }
-proc.time() - pt
+proc.time() - ptm
 print("all done!")

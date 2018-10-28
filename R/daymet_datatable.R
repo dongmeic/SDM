@@ -3,7 +3,7 @@ library(rgdal)
 library(RColorBrewer)
 library(classInt)
 
-setwd("/gpfs/projects/gavingrp/dongmeic/beetle/output/daily/20181017")
+setwd("/gpfs/projects/gavingrp/dongmeic/beetle/output/plots")
 
 substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
@@ -28,16 +28,16 @@ roi.shp <- readOGR(dsn="/gpfs/projects/gavingrp/dongmeic/beetle/shapefiles", lay
 roi.df <- roi.shp@data[,-1]
 
 ptm <- proc.time()
-#for(vtype in c("tmean", "tmax", "tmin")){
-for(vtype in c("tmean")){
+for(vtype in c("tmax", "tmean")){
 	infolder <- paste0("/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/", vtype)
 	dir.create(file.path(infolder), showWarnings = FALSE)
-	for(year in c(2000:2009)){
+	for(year in c(1999, 2008)){
 		df <- as.data.frame(matrix(,ncol=0,nrow=77369))
-		pdf(paste0(vtype, year, ".pdf"), width=12, height=6)
+		pdf(paste0(vtype, year, "_corrected.pdf"), width=12, height=6)
 		for(doy in 1:365){
 			if(!file.exists(daymet(vtype, year, doy))){
 				next
+				print(paste("file", vtype, year, doy, "doesn't exist..."))
 			}else{
 				r <- read.tif(vtype, year, doy)
 				r1 <- projectRaster(r, crs = na10km)
@@ -47,6 +47,9 @@ for(vtype in c("tmean")){
 				plot(r1, xlim=c(-2050000,20000), ylim=c(-2000000,2000000), main=paste(vtype, doy, "reprojected"))
 				plot(r2, xlim=c(-2050000,20000), ylim=c(-2000000,2000000), main=paste(vtype, doy, "resampled"))
 				vals <- extract(r2, roi.shp, df=TRUE)
+				if(sum(is.na(is.numeric(vals[,2])))!=0 & sum(is.na(is.numeric(vals[,2])))!=177){
+					print(paste("these rows don't have values, and you need to check...", which(is.na(is.numeric(vals)))))
+				}
 				df <- cbind(df, vals[,2])
 				names(df)[dim(df)[2]] <- names(vals)[2]
 			}		
