@@ -1,5 +1,5 @@
 # Created by Dongmei Chen
-# Writing daily bioclimatic variables
+# Daily bioclimatic variables from Daymet
 
 source("/gpfs/projects/gavingrp/dongmeic/climate-space/R/damian/getStatsFromDaily.R")
 inpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/"
