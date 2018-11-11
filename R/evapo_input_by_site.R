@@ -19,6 +19,7 @@ if(1){
 	print(paste('year:', years[yr]))
 }
 
+ifelse(!dir.exists(file.path(outcsvpath, years[yr])), dir.create(file.path(outcsvpath, years[yr])), FALSE)
 roi.df <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/csvfiles/na10km_v2_roi_xy.csv")
 d <- dim(roi.df)[1]
 
@@ -89,7 +90,7 @@ for(i in 1:d){
 		df <- data.frame(cbind(col1, col2, col3))
 		colnames(df) <- varnms
 		outnm <- paste0("s",roi.df$X[i], "_", roi.df$lat[i], "_", roi.df$etopo1[i], "_", years[yr],".csv")
-		write.csv(df, paste0(outcsvpath, outnm), row.names = FALSE)
+		write.csv(df, file.path(outcsvpath,years[yr],outnm), row.names = FALSE)
 	}
 }
 print(paste("...got data from year", years[yr], "..."))

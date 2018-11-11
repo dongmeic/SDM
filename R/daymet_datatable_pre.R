@@ -46,7 +46,7 @@ for(doy in 1:365){
 	}else{
 		r <- read.tif(year, doy)
 		r1 <- projectRaster(r, crs = na10km)
-		r2 <- aggregate(r1, fact=10, fun=sum)
+		r2 <- aggregate(r1, fact=10, fun=mean)
 		par(mfrow=c(1,3),mar=c(2,2,2,2))
 		plot(r, main=paste("prcp", doy))
 		plot(r1, xlim=c(-2050000,20000), ylim=c(-2000000,2000000), main=paste("prcp", doy, "reprojected"))
