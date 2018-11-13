@@ -2,7 +2,7 @@
 # didn't download data correctly
 import sys, os, traceback, datetime, time, string, glob
 
-years = range(1996, 2016)
+years = range(1995, 1996)
 types = ['prcp', 'tmax', 'tmin', 'vp']
 
 

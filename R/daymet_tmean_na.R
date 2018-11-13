@@ -1,4 +1,5 @@
-# cannot write out long vectors
+# long vectors not supported yet: ../../src/include/Rinlinedfuns.h:138
+# cannot write into GEO2D data - something is wrong with the projection
 
 library(ncdf4)
 library(lattice)
@@ -75,6 +76,7 @@ yearday <- ncvar_get(ncin, "yearday")
 time_bnds <- ncvar_get(ncin, "time_bnds")
 
 # get CRS attributes
+projname <- "lambert_conformal_conic"
 crs_grid_mapping_name <- ncatt_get(ncin, projname, "grid_mapping_name")$value
 crs_longitude_of_central_meridian <- ncatt_get(ncin, projname, "longitude_of_central_meridian")$value
 crs_latitude_of_projection_origin <- ncatt_get(ncin, projname, "latitude_of_projection_origin")$value
@@ -90,45 +92,41 @@ nc_close(ncin)
 # write out netCDF file
 bounds <- c(1,2)
 # define dimensions
-xdim <- ncdim_def("x",units="m",longname="x coordinate of projection",as.double(x))
-ydim <- ncdim_def("y",units="m",longname="y coordinate of projection",as.double(y))
-tdim <- ncdim_def("time",units=tunits,longname="time",as.double(time))
+xdim <- ncdim_def("x",units="m",longname=x_long_name,as.double(x))
+ydim <- ncdim_def("y",units="m",longname=y_long_name,as.double(y))
+test = 1
+if(test){
+	tdim <- ncdim_def("time",units=tunits,longname="time",as.double(time[1]))
+}else{
+	tdim <- ncdim_def("time",units=tunits,longname="time",as.double(time))
+}
+
 bdim <- ncdim_def("nv",units="1",longname=NULL,as.double(bounds))
 dlname <- "time_bnds"
 bnds_def <- ncvar_def("time_bnds",tunits,list(bdim,tdim),NULL,dlname,prec="double")
 
 # define common variables
-dlname <- "Longitude of cell center"
-lon_def <- ncvar_def("lon","degrees_east",list(xdim,ydim),NULL,dlname,prec="double")
-dlname <- "Latitude of cell center"
-lat_def <- ncvar_def("lat","degrees_north",list(xdim,ydim),NULL,dlname,prec="double")
-projname <- "lambert_conformal_conic"
-dlanme <- "lambert conformal conic"
-proj_def <- ncvar_def(projname,"1",NULL,NULL,longname=dlname,prec="char")
+lon_def <- ncvar_def("lon",lon_units,list(xdim,ydim),NULL,lon_lname,prec="double")
+lat_def <- ncvar_def("lat",lat_units,list(xdim,ydim),NULL,lat_lname,prec="double")
+proj_def <- ncvar_def(projname,"",NULL,NULL,projname,prec="short")
+dlanme <- "yearday"
+yday_def <- ncvar_def("yearday","day",list(tdim),NULL,longname=dlname,prec="int")
 
 # define variable
 dlname <- "daily mean temperature"
 var_def <- ncvar_def("tmean",dunits,list(xdim,ydim,tdim),fillvalue,dlname,prec="float")
 
 # create netCDF file and put array
-ncfname <- paste0(ncpath, years[yr], "/daymet_v3_tmean_", years[yr], "_na.nc4")
-ncout <- nc_create(ncfname,list(lon_def,lat_def,var_def,bnds_def,proj_def),force_v4=TRUE,verbose=FALSE)
+ncfname <- paste0(ncpath, years[yr], "/daymet_v3_tmean_", years[yr], "_na.nc")
+ncout <- nc_create(ncfname,list(lon_def,lat_def,var_def,yday_def,bnds_def,proj_def),force_v4=TRUE,verbose=FALSE)
 
 # put additional attributes into dimension and data variables
-ncatt_put(ncout,"x","long_name",x_long_name)
 ncatt_put(ncout,"x","standard_name",x_standard_name)
-ncatt_put(ncout,"y","long_name",y_long_name)
 ncatt_put(ncout,"y","standard_name",y_standard_name)
-ncatt_put(ncout,"time","long_name","time")
 ncatt_put(ncout,"time","calendar","standard")
 ncatt_put(ncout,"time","units",tunits)
 ncatt_put(ncout,"time","bounds","time_bnds")
-
-ncatt_put(ncout,"lon","units",lon_units)
-ncatt_put(ncout,"lon","long_name",lon_lname)
 ncatt_put(ncout,"lon","standard_name",lon_stdname)
-ncatt_put(ncout,"lat","units",lat_units)
-ncatt_put(ncout,"lat","long_name",lat_lname)
 ncatt_put(ncout,"lat","standard_name",lat_stdname)
 
 ncatt_put(ncout,projname,"grid_mapping_name",crs_grid_mapping_name)
@@ -143,9 +141,17 @@ ncatt_put(ncout,projname,"inverse_flattening",crs_inverse_flattening)
 # put variables
 ncvar_put(ncout,lon_def,lon)
 ncvar_put(ncout,lat_def,lat)
-ncvar_put(ncout,tdim,time)
-ncvar_put(ncout,bnds_def,time_bnds)
-ncvar_put(ncout,var_def,var3d)
+if(test){
+	ncvar_put(ncout,tdim,time[1])
+	ncvar_put(ncout,yday_def,yearday[1])
+	ncvar_put(ncout,bnds_def,time_bnds[,1])
+	ncvar_put(ncout,var_def,var3d[,,1])
+}else{
+	ncvar_put(ncout,tdim,time)
+	ncvar_put(ncout,yday_def,yearday)
+	ncvar_put(ncout,bnds_def,time_bnds)
+	ncvar_put(ncout,var_def,var3d)
+}
 
 # add global attributes
 ncatt_put(ncout,0,"start_year",years[yr])
