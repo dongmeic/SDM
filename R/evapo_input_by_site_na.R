@@ -8,7 +8,7 @@ na10km <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/csvfiles/na10km_v2.c
 d <- dim(na10km)[1]
 years <- 1991:2015; nyr <- length(years)
 start_year <- 1081;
-outcsvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/evapo_na"
+outcsvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/evapo_na/input"
 csvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/datatable_na/"
 ncpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/ncfiles/na10km_v2/ts/"
 setwd(outcsvpath)
@@ -67,6 +67,7 @@ get.cru.daily.vector.by.cell <- function(var,i){
 }
 
 tmean <- read.csv(paste0(csvpath, "tmean/tmean_", years[yr],".csv"))
+rows <- which(rowSums(is.na(tmean))==0)
 prcp <- read.csv(paste0(csvpath, "prcp/prcp_", years[yr],".csv"))
 get.daymet.daily.vector.by.cell <- function(var,i){
 	if(var=="tmean"){
@@ -77,7 +78,8 @@ get.daymet.daily.vector.by.cell <- function(var,i){
 }
 
 print("writing out data...")
-for(i in 1:d){
+
+for(i in rows){
 	col1 <- get.cru.daily.vector.by.cell(vars[1],i)/100
 	col2 <- get.daymet.daily.vector.by.cell(vars[2],i)
 	if(sum(is.na(col2))!= 0){
