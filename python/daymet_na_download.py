@@ -1,9 +1,8 @@
 # download netCDF files for daymet North America
-# didn't download data correctly
 import sys, os, traceback, datetime, time, string, glob
 
-years = range(1995, 1996)
-types = ['prcp', 'tmax', 'tmin', 'vp']
+years = range(1991, 1995)
+types = ['prcp', 'tmax', 'tmin']
 
 
 try:
@@ -13,7 +12,7 @@ try:
         yeardir = filedir + os.sep + str(year)
         if not os.path.exists(yeardir):
             os.mkdir(yeardir)
-            os.chdir(yeardir)
+        os.chdir(yeardir)
         for type in types:
             print(type)
             url = 'https://thredds.daac.ornl.gov/thredds/fileServer/ornldaac/1328/%s/daymet_v3_%s_%s_na.nc4' % (str(year), type, str(year))
