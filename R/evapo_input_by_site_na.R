@@ -4,10 +4,9 @@
 library(ncdf4)
 source("/gpfs/projects/gavingrp/dongmeic/climate-space/R/damian/getDailyStats.R")
 
-na10km <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/csvfiles/na10km_v2.csv")
-d <- dim(na10km)[1]
+rows <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/csvfiles/daymet_na10km.csv")
+d <- dim(rows)[1]
 years <- 1991:2015; nyr <- length(years)
-start_year <- 1081;
 outcsvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/evapo_na/input"
 csvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/datatable_na/"
 ncpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/ncfiles/na10km_v2/ts/"
@@ -67,7 +66,6 @@ get.cru.daily.vector.by.cell <- function(var,i){
 }
 
 tmean <- read.csv(paste0(csvpath, "tmean/tmean_", years[yr],".csv"))
-rows <- which(rowSums(is.na(tmean))==0)
 prcp <- read.csv(paste0(csvpath, "prcp/prcp_", years[yr],".csv"))
 get.daymet.daily.vector.by.cell <- function(var,i){
 	if(var=="tmean"){
@@ -79,8 +77,8 @@ get.daymet.daily.vector.by.cell <- function(var,i){
 
 print("writing out data...")
 
-for(i in rows){
-	col1 <- get.cru.daily.vector.by.cell(vars[1],i)/100
+for(i in 1:d){
+	col1 <- get.cru.daily.vector.by.cell(vars[1],rows$rows[i])/100
 	col2 <- get.daymet.daily.vector.by.cell(vars[2],i)
 	if(sum(is.na(col2))!= 0){
 		next
@@ -88,7 +86,7 @@ for(i in rows){
 		col3 <- get.daymet.daily.vector.by.cell(vars[3],i)
 		df <- data.frame(cbind(col1, col2, col3))
 		colnames(df) <- varnms
-		outnm <- paste0("s",i, "_", na10km$lat[i], "_", na10km$etopo1[i], "_", years[yr],".csv")
+		outnm <- paste0("s",i, "_", rows$lat[i], "_", rows$etopo1[i], "_", years[yr],".csv")
 		write.csv(df, file.path(outcsvpath,years[yr],outnm), row.names = FALSE)
 	}
 }
