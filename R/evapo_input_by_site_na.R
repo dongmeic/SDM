@@ -4,13 +4,15 @@
 library(ncdf4)
 source("/gpfs/projects/gavingrp/dongmeic/climate-space/R/damian/getDailyStats.R")
 
-rows <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/csvfiles/daymet_na10km.csv")
-d <- dim(rows)[1]
-years <- 1991:2015; nyr <- length(years)
-outcsvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/evapo_na/input"
-csvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/datatable_na/"
-ncpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/ncfiles/na10km_v2/ts/"
-setwd(outcsvpath)
+if(0){
+	rows <- read.csv("/gpfs/projects/gavingrp/dongmeic/beetle/csvfiles/daymet_na10km.csv")
+	d <- dim(rows)[1]
+	years <- 1991:2015; nyr <- length(years)
+	outcsvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/evapo_na/input"
+	csvpath <- "/gpfs/projects/gavingrp/dongmeic/daymet/datatable_na/"
+	ncpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/ncfiles/na10km_v2/ts/"
+	setwd(outcsvpath)
+}
 
 # 1 - run in bash; 0 - run in R
 if(1){
@@ -21,7 +23,7 @@ if(1){
 	print(paste('year:', years[yr]))
 }
 
-ifelse(!dir.exists(file.path(outcsvpath, years[yr])), dir.create(file.path(outcsvpath, years[yr])), FALSE)
+ifelse(!dir.exists(file.path(years[yr])), dir.create(file.path(years[yr])), FALSE)
 
 vars <- c("sun", "tmean", "prcp")
 varnms <- c("sf", "tair", "pn")
@@ -75,9 +77,9 @@ get.daymet.daily.vector.by.cell <- function(var,i){
 	}	
 }
 
-print("writing out data...")
-
-for(i in 1:d){
+#print("writing out data...")
+#for(i in 1:d){
+evapo_input_by_site <- function(i){
 	col1 <- get.cru.daily.vector.by.cell(vars[1],rows$rows[i])/100
 	col2 <- get.daymet.daily.vector.by.cell(vars[2],i)
 	if(sum(is.na(col2))!= 0){
@@ -86,10 +88,10 @@ for(i in 1:d){
 		col3 <- get.daymet.daily.vector.by.cell(vars[3],i)
 		df <- data.frame(cbind(col1, col2, col3))
 		colnames(df) <- varnms
-		outnm <- paste0("s",i, "_", rows$lat[i], "_", rows$etopo1[i], "_", years[yr],".csv")
-		write.csv(df, file.path(outcsvpath,years[yr],outnm), row.names = FALSE)
+		outnm <- paste0("s",rows$rows[i], "_", rows$lat[i], "_", rows$etopo1[i], "_", years[yr],".csv")
+		write.csv(df, file.path(years[yr],outnm), row.names = FALSE)
 	}
 }
-print(paste("...got data from year", years[yr], "..."))
+#print(paste("...got data from year", years[yr], "..."))
 
-print("all done!")
+#print("all done!")

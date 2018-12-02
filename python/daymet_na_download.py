@@ -2,8 +2,8 @@
 import sys, os, traceback, datetime, time, string, glob
 
 years = range(1991, 1995)
-types = ['prcp', 'tmax', 'tmin']
-
+#types = ['prcp', 'tmax', 'tmin']
+types = ['vp']
 
 try:
     filedir = '/gpfs/projects/gavingrp/dongmeic/daymet/ncfiles_na'
