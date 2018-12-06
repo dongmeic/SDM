@@ -23,6 +23,7 @@ merge.files <- function(set=c('train', 'valid', 'test')) {
       data <- rbind(data, next.data)
     }
   }
+  colnames(data)[1] <- 'btl_t'
   data
 }
 
