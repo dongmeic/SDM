@@ -3,8 +3,9 @@ library(mgcv)
 
 
 #DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
-DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/backcasting/Xy_year_split_data'
-setwd("/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/gam/backcast")
+#DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/backcasting/Xy_year_split_data'
+DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input'
+setwd("/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/gam")
 
 merge.files <- function(set=c('train', 'valid', 'test')) {
   cat(sprintf('Merging %s data...\n', set))
@@ -28,7 +29,7 @@ merge.files <- function(set=c('train', 'valid', 'test')) {
 main <- function(iters) {
   train <- merge.files('train')
   ignore <- c('btl_t', 'x', 'y', 'btl_t1', 'btl_t2', 'btl_t3', 'btl_t4', 'btl_t5', 'vgt', 'year', 
-              'sum9_t1', 'sum9_t2', 'sum9_t3', 'sum9_t4', 'sum9_t5')
+              'sum9_t1', 'sum9_t2', 'sum9_t3', 'sum9_t4', 'sum9_t5', 'x.new', 'y.new', 'xy')
   plot.gam.sample <- function(sample.size=32000) {
     par(mfrow=c(3, 3))
     for (field in names(train)) {
