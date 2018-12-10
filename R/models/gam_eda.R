@@ -14,16 +14,17 @@ merge.files <- function(set=c('train', 'valid', 'test')) {
   y.files <- sort(all.files[grepl(paste('y', set, sep='_'), all.files)])
   X <- read.csv(paste(DATA_DIR, X.files[1], sep='/'))
   y <- read.csv(paste(DATA_DIR, y.files[1], sep='/'))
+  colnames(y) <- 'btl_t'
   data <- cbind(y, X)
   if (length(X.files) > 1) {
     for (i in 2:length(X.files)) {
       next.X <- read.csv(paste(DATA_DIR, X.files[i], sep='/'))
       next.y <- read.csv(paste(DATA_DIR, y.files[i], sep='/'))
+      colnames(next.y) <- 'btl_t'
       next.data <- cbind(next.y, next.X)
       data <- rbind(data, next.data)
     }
   }
-  colnames(data)[1] <- 'btl_t'
   data
 }
 
