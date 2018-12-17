@@ -52,5 +52,4 @@ main <- function(iters) {
     plot.gam.sample()
   }
 }
-
 main(10)

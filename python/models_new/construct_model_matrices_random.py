@@ -230,7 +230,7 @@ class ModelMatrixConstructor:
         for field in self.CUBE:
             data_set['%s_cub' % field] = data_set[field] ** 3
         return data_set
-    
+
     def _add_interactions(self, data_set):
         print('Adding interactions...')
         for field in self.INTERACTIONS:
