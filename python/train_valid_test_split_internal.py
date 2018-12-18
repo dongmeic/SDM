@@ -9,8 +9,9 @@ import pandas as pd
 
 
 #DATA_DIR = '../data'
-DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables'
-OUTPUT_DIR = '%s/Xy_internal_split_data' % DATA_DIR
+DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables'
+DATA_DIR = '%s/input' % DIR
+OUTPUT_DIR = '%s/Xy_internal_split_data' % DIR
 INPUT_FILE_FORMAT = r'input_data_[0-9]{4}\.csv$'
 
 
