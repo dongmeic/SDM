@@ -263,7 +263,7 @@ class ModelMatrixConstructor:
                     if abs(x - x_below) == 1:
                         use.append(x_below)
                     if len(use):
-                        df.loc[i, field] = np.mean(use)
+                        df.loc[i, field] = np.nanmean(use)
             iterations += 1
             if iterations > 2:
                 print('Could not fill %s for %d rows.'
