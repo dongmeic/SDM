@@ -25,7 +25,8 @@ setwd(path)
 
 years <- 1996:2015; nyr <- length(years)
 # beetle presence data
-btlprs <- read.csv("beetle_presence.csv")
+#btlprs <- read.csv("beetle_presence.csv")
+btlprs <- read.csv("beetle_presence_updated.csv")
 btlsum9 <- read.csv("ts_presence_sum9.csv")
 # bounding box
 bd <- btlprs[btlprs$allyears==1,]
