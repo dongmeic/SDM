@@ -13,8 +13,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 
-import model_utils as util
-from construct_model_matrices import ModelMatrixConstructor
+#import model_utils as util
+import model_utils_new as util
+#from construct_model_matrices import ModelMatrixConstructor
+from construct_model_matrices_random import ModelMatrixConstructor
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/Xy_internal_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/l1'
