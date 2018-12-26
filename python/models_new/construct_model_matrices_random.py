@@ -5,34 +5,22 @@ import pandas as pd
 
 
 class ModelMatrixConstructor:
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, test=False):
         self.DATA_DIR = data_dir
         self.SQUARE = [
-            'lon', 'lat', 'etopo1', 'age', 'density', 'JanTmin', 'MarTmin', 'maxT',
-            'TMarAug', 'summerTmean', 'AugTmean','PMarAug','TMarAug','Tmin', 'summerP2',
-            'summerP1', 'OctTmin','Tvar', 'TOctSep', 'summerP0', 'Pmean', 'POctSep', 'wd',
-            'PcumOctSep', 'PPT', 'cwd']
-        self.CUBE = ['ddAugJul','ddAugJun','Tmean','TMarAug','fallTmean','TOctSep','vpd','AugMaxT','AugTmax']
-        self.INTERACTIONS = ['age:density', 'age:summerTmean', 'age:summerP0', 'age:ddAugJul', 'density:JanTmin', 
-                             'density:Tmean', 'density:OptTsum', 'density:wd', 'density:mi', 'density:ddAugJul']
+            'lon', 'lat', 'etopo1', 'age', 'density', 'JanTmin', 'MarTmin',
+            'maxT', 'TMarAug', 'summerTmean', 'AugTmean', 'PMarAug', 'TMarAug',
+            'Tmin', 'summerP2', 'summerP1', 'OctTmin', 'Tvar', 'TOctSep',
+            'summerP0', 'Pmean', 'POctSep', 'wd', 'PcumOctSep', 'PPT', 'cwd']
+        self.CUBE = ['ddAugJul', 'ddAugJun', 'Tmean', 'TMarAug', 'fallTmean',
+                     'TOctSep', 'vpd', 'AugMaxT','AugTmax']
+        self.INTERACTIONS = [
+            'age:density', 'age:summerTmean', 'age:summerP0', 'age:ddAugJul',
+            'density:JanTmin', 'density:Tmean', 'density:OptTsum', 'density:wd',
+            'density:mi', 'density:ddAugJul']
         self.DROP = ['x.new', 'y.new', 'xy']
+        self.test = test
 
-    def set_squares(self, squares):
-        squares = squares if isinstance(squares, list) else [squares]
-        self.SQUARE = squares
-
-    def set_cubes(self, cubes):
-        cubes = cubes if isinstance(cubes, list) else [cubes]
-        self.CUBE = cubes
-
-    def set_interactions(self, interactions):
-        interactions = (interactions if isinstance(interactions, list)
-                        else [interactions])
-        self.INTERACTIONS = interactions
-
-    def set_drop_columns(self, drops):
-        self.DROP = drops if isinstance(drops, list) else [drops]
-        
     def construct_model_matrices(self):
         train_X_files = sorted(
             [f for f in os.listdir(self.DATA_DIR) if 'X_train' in f])
@@ -55,7 +43,6 @@ class ModelMatrixConstructor:
         y_train = self._load_data_set(train_y_files)
         y_valid = self._load_data_set(valid_y_files)
         y_test  = self._load_data_set(test_y_files)
-
         if self.DROP:
             X_train = X_train.drop(self.DROP, axis=1)
             X_valid = X_valid.drop(self.DROP, axis=1)
@@ -74,19 +61,25 @@ class ModelMatrixConstructor:
             y = y.reindex()
             data_sets[i] = [X, y]
         self.data_sets = data_sets
-        return data_sets
         
-    def select_variables(*vars):
-    		drop = []
-    		all_variables = list(self.data_sets[0][0])
-    		for var in vars:
-    				if var not in all_variables and ':' in var:
-    						self._add_interaction_term(data_set)
-    		self.current_sets = self.select_variables(self.data_sets)
+    def select_variables(self, variables):
+        all_variables = list(self.data_sets[0][0])
+        for var in variables:
+            if var not in all_variables and ':' in var:
+                self._add_interaction_term(var)
+        try:
+            return self._select_variables_from_sets(variables)
+        except BaseException as e:
+            print('Error in select_variables():\n%s' % e)
+
+    def get_data_sets(self):
+        return self.data_sets
 
     def _load_data_set(self, set_files):
         print('Loading data from %s...' % set_files)
         data_set = pd.read_csv('%s/%s' % (self.DATA_DIR, set_files.pop()))
+        if self.test:
+            return data_set
         for f in set_files:
             next_chunk = pd.read_csv('%s/%s' % (self.DATA_DIR, f))
             data_set = data_set.append(next_chunk)
@@ -151,6 +144,25 @@ class ModelMatrixConstructor:
                 return df
         return df
 
+    def _add_interaction_term(self, var):
+        print('adding interaction term for', var)
+        fields = var.split(':')
+        for data_set in self.data_sets:
+            if len(fields) == 2:
+                f1, f2 = fields
+                data_set[0][var] = data_set[0][f1] * data_set[0][f2]
+            elif len(fields) == 3:
+                f1, f2, f3 = fields
+                data_set[var][0] = data_set[f1] * data_set[f2] * data_set[f3]
+
+    def _select_variables_from_sets(self, variables):
+        out = []
+        for data_set in self.data_sets:
+            X = data_set[0].copy()
+            y = data_set[1].copy()
+            X = X[variables]
+            out.append([X, y])
+        return out
 
 # Test
 #mod_matrix_constructor = ModelMatrixConstructor(
