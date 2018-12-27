@@ -7,19 +7,35 @@ import pandas as pd
 class ModelMatrixConstructor:
     def __init__(self, data_dir, test=False):
         self.DATA_DIR = data_dir
-        self.SQUARE = [
-            'lon', 'lat', 'etopo1', 'age', 'density', 'JanTmin', 'MarTmin',
-            'maxT', 'TMarAug', 'summerTmean', 'AugTmean', 'PMarAug', 'TMarAug',
-            'Tmin', 'summerP2', 'summerP1', 'OctTmin', 'Tvar', 'TOctSep',
-            'summerP0', 'Pmean', 'POctSep', 'wd', 'PcumOctSep', 'PPT', 'cwd']
-        self.CUBE = ['ddAugJul', 'ddAugJun', 'Tmean', 'TMarAug', 'fallTmean',
-                     'TOctSep', 'vpd', 'AugMaxT','AugTmax']
-        self.INTERACTIONS = [
-            'age:density', 'age:summerTmean', 'age:summerP0', 'age:ddAugJul',
-            'density:JanTmin', 'density:Tmean', 'density:OptTsum', 'density:wd',
-            'density:mi', 'density:ddAugJul']
-        self.DROP = ['x.new', 'y.new', 'xy']
         self.test = test
+        self.SQUARE = [
+            'Tmin', 'mi', 'lat', 'vpd', 'PcumOctSep', 'summerP0', 'ddAugJul',
+            'AugMaxT', 'cwd', 'age', 'maxT', 'PPT', 'Acs', 'wd', 'MarMin',
+            'summerP0', 'OctTmin', 'summerP1', 'OctMin', 'ddAugJun', 'JanTmin',
+            'summerP2', 'max.drop', 'Pmean', 'PMarAug', 'etopo1', 'POctSep']
+        self.CUBE = [
+            'MarTmin', 'fallTmean', 'Tvar', 'JanMin', 'age', 'density', 'lon',
+            'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
+            'winterMin', 'TMarAug', 'summerTmean']
+        self.INTERACTIONS = []
+        #   'age:density', 'age:summerTmean', 'age:summerP0', 'age:ddAugJul',
+        #   'density:JanTmin', 'density:Tmean', 'density:OptTsum', 'density:wd',
+        #   'density:mi', 'density:ddAugJul']
+        self.DROP = ['x.new', 'y.new', 'xy']
+        self.FIXED = ['age', 'density', 'lat', 'lon', 'etopo1', 'btl_t1',
+                      'btl_t2', 'sum9_t1', 'sum9_t2']
+        self.categories = {
+            'cold1': ['Jan20', 'Mar20'],
+            'cold2': ['JanTmin', 'MarTmin', 'OctTmin', 'Tmin', 'Acs',
+                      'max.drop', 'OctMin', 'JanMin', 'MarMin', 'winterMin',
+                      'minT'],
+            'season': ['TMarAug', 'fallTmean', 'Tmean', 'Tvar', 'TOctSep',
+                       'ddAugJul', 'ddAugJun'],
+            'summer_temp': ['summerTmean', 'AugTmean', 'AugTmax', 'maxAugT',
+                            'OptTsum', 'AugMaxT', 'maxT'],
+            'rain1': ['PMarAug', 'summerP0', 'summerP1', 'summerP2', 'Pmean',
+                      'POctSep', 'PcumOctSep', 'PPT'],
+            'rain2': ['wd', 'vpd', 'mi', 'cwd']}
 
     def construct_model_matrices(self):
         train_X_files = sorted(
@@ -71,10 +87,30 @@ class ModelMatrixConstructor:
             return self._select_variables_from_sets(variables)
         except BaseException as e:
             print('Error in select_variables():\n%s' % e)
-
+    
+    def get_random_variables(self):
+        variables = []
+        fixed = self.FIXED.copy()
+        all_variables = list(self.data_sets[0][0])
+        selected = [np.random.choice(vs) for k, vs in self.categories.items()]
+        for var in selected:
+            variations = [x for x in all_variables if var in x and ':' not in x]
+            variables += variations
+        fixed_variations = []
+        for var in all_variables:
+            if ':' not in var:
+                for f in fixed:
+                    if f in var:
+                        fixed_variations.append(var)
+        fixed += fixed_variations
+        interactions = ['%s:%s' % (x, y)
+                        for x in fixed if '_' not in x
+                        for y in variables if '_' not in y]
+        return fixed + variables + interactions
+            
     def get_data_sets(self):
         return self.data_sets
-
+    
     def _load_data_set(self, set_files):
         print('Loading data from %s...' % set_files)
         data_set = pd.read_csv('%s/%s' % (self.DATA_DIR, set_files.pop()))
@@ -145,7 +181,6 @@ class ModelMatrixConstructor:
         return df
 
     def _add_interaction_term(self, var):
-        print('adding interaction term for', var)
         fields = var.split(':')
         for data_set in self.data_sets:
             if len(fields) == 2:
