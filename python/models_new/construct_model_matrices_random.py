@@ -18,9 +18,6 @@ class ModelMatrixConstructor:
             'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
             'winterMin', 'TMarAug', 'summerTmean']
         self.INTERACTIONS = []
-        #   'age:density', 'age:summerTmean', 'age:summerP0', 'age:ddAugJul',
-        #   'density:JanTmin', 'density:Tmean', 'density:OptTsum', 'density:wd',
-        #   'density:mi', 'density:ddAugJul']
         self.DROP = ['x.new', 'y.new', 'xy']
         self.FIXED = ['age', 'density', 'lat', 'lon', 'etopo1', 'btl_t1',
                       'btl_t2', 'sum9_t1', 'sum9_t2']
