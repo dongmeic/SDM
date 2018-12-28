@@ -78,7 +78,6 @@ def print_percent_presence(y, y_name):
     print('Percent presence in %s: %.2f%%' %
           (y_name, 100 * y.sum() / y.shape[0]))
 
-
 def vectorize(y):
     # [1, 0, 0, 1] -> [[0, 1], [1, 0], [1, 0], [0, 1]]
     y = y.tolist()
