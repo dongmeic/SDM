@@ -93,6 +93,7 @@ class ModelMatrixConstructor:
         for var in selected:
             variations = [x for x in all_variables if var in x and ':' not in x]
             variables += variations
+            variables = list(set(variables))
         fixed_variations = []
         for var in all_variables:
             if ':' not in var:
@@ -100,8 +101,9 @@ class ModelMatrixConstructor:
                     if f in var:
                         fixed_variations.append(var)
         fixed += fixed_variations
+        fixed = list(set(fixed))
         interactions = ['%s:%s' % (x, y)
-                        for x in fixed if '_' not in x
+                        for x in fixed if '_' not in x and 'age' not in x
                         for y in variables if '_' not in y]
         return fixed + variables + interactions
             
