@@ -18,9 +18,10 @@ import model_utils_new as util
 from construct_model_matrices_random import ModelMatrixConstructor
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
-IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/l1'
-OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/l1'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/test'
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test'
 REGULARIZER = 'l1'
+print('Regularizer:', REGULARIZER)
 
 def main():
     make_dirs()
@@ -30,11 +31,12 @@ def main():
     matrix_constructor.construct_model_matrices()
     test_vars = matrix_constructor.get_random_variables()
     for var in ['x', 'y', 'year']:
-        test_vars.append(var)
+    		test_vars.append(var)
+    test_vars = sorted(test_vars)
     data_sets = matrix_constructor.select_variables(test_vars)
     [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]] = data_sets
     for (data_set, name) in zip(data_sets, ['Train', 'Valid', 'Test']):
-        print_dims(data_set, name)
+    		print_dims(data_set, name)
     util.print_percent_presence(y_train, 'y_train')
     util.print_percent_presence(y_valid, 'y_valid')
     util.print_percent_presence(y_test, 'y_test')
@@ -64,7 +66,7 @@ def main():
     preds = logistic_clf.predict(X_test)
     probs = logistic_clf.predict_proba(X_test)
     accuracy = sum(y_test == preds) / len(preds)
-    print('Test accuracy:', accuracy)
+    print('Test accuracy:', accuracy)   
 
     pred_ps = logistic_clf.predict_proba(X_test)
     pred_ps = np.array([p[1] for p in pred_ps])
@@ -137,8 +139,7 @@ def main():
             pred_type='probs',
             plot=True,
             path='%s/prob_plot_all_%d.png' % (IMG_DIR, year))
-        
-    
+            
 def make_dirs():
     for d in [IMG_DIR, OUT_DIR]:
         if not os.path.exists(d):
@@ -158,7 +159,7 @@ def scale_data(X_train, X_valid, X_test):
     return X_train, X_valid, X_test
 
 def get_best_C(X_train, y_train, X_valid, y_valid):
-		l1_mods = []
+		l_mods = []
 		Cs = np.logspace(-4, 0, 5)
 		best_C = np.nan
 		best_accuracy = 0
@@ -166,7 +167,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid):
 		best_penalty = None
 		for C in Cs:
 				print('Testing C =', C)
-				for penalty in ['l1']:
+				for penalty in [REGULARIZER]:
 						print('  %s:' % penalty, end=' ')
 						logistic_clf = LogisticRegression(C=C, penalty=penalty, solver='saga', n_jobs=-1)
 						logistic_clf.fit(X_train, y_train)
@@ -177,8 +178,9 @@ def get_best_C(X_train, y_train, X_valid, y_valid):
 								best_accuaracy = accuracy
 								best_penalty = penalty
 						print(round(accuracy, 4))
-						l1_mods.append(accuracy)
+						l_mods.append(accuracy)
 						print('Elapsed time: %.2f minutes' % ((time.time() - t0) / 60))
+		print(l_mods)
 		return best_C
 
 def get_predictions_at_threshold(pred_ps, threshold):
@@ -223,8 +225,8 @@ def pred_plot(actual_matrix, pred_matrix, error_matrix, year, path):
 def make_actual_pred_and_error_matrices(
         data, year, pred_type='preds', plot=False, path=''):
     data_year = data.loc[data.year == year, :]
-    actual_matrix = util.column2matrix(data_year, 'btl_t', cell_dim=1)
-    pred_matrix   = util.column2matrix(data_year, pred_type, cell_dim=1)
+    actual_matrix = util.column2matrix(data_year, 'btl_t')
+    pred_matrix   = util.column2matrix(data_year, pred_type)
     error_matrix  = pred_matrix - actual_matrix
     if plot:
         pred_plot(actual_matrix, pred_matrix, error_matrix, year, path)

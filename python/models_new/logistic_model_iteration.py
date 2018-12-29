@@ -18,11 +18,15 @@ import model_utils_new as util
 from construct_model_matrices_random import ModelMatrixConstructor
 
 i = sys.argv[1]
+print('iteration:', i)
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
-IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/iter' + str(i)
-OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/iter' + str(i)
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/iter' + i
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/iter' + i
 REGULARIZER = 'l1'
+print('Regularizer:', REGULARIZER)
+
+DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/daily/20181228/iter'
 
 def main():
     make_dirs()
@@ -31,8 +35,6 @@ def main():
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
     test_vars = matrix_constructor.get_random_variables()
-    for var in ['x', 'y', 'year']:
-        test_vars.append(var)
     data_sets = matrix_constructor.select_variables(test_vars)
     [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]] = data_sets
     for (data_set, name) in zip(data_sets, ['Train', 'Valid', 'Test']):
@@ -49,10 +51,6 @@ def main():
     full_train['btl_t'] = y_train['btl_t']
     full_valid['btl_t'] = y_valid['btl_t']
     full_test['btl_t'] = y_test['btl_t']
-    drop = ['x', 'y', 'year']
-    X_train = X_train.drop(drop, axis=1)
-    X_valid = X_valid.drop(drop, axis=1)
-    X_test  = X_test.drop(drop, axis=1)
     predictors = list(X_train)
     X_train, X_valid, X_test = scale_data(X_train, X_valid, X_test)
     y_train = y_train['btl_t'].values.reshape(-1)
@@ -83,7 +81,7 @@ def main():
     metrics = util.get_metrics(cm)
     auc_metrics = util.get_auc(y_test, pred_ps)
     util.plot_roc(
-        auc_metrics['fpr'], auc_metrics['tpr'], path='%s/roc.png' % IMG_DIR)
+        auc_metrics['fpr'], auc_metrics['tpr'], path='%s/roc_%s.png' % (IMG_DIR, i))
     coefs = pd.DataFrame(
             [[pred, coef]
              for pred, coef in zip(predictors, logistic_clf.coef_[0])],
@@ -92,7 +90,7 @@ def main():
     coefs = coefs.sort_values('abs', ascending=False)
     coefs = coefs.drop(['abs'], axis=1)
     print(coefs)
-    coefs.to_csv('%s/coefficients.csv' % OUT_DIR, index=False)
+    coefs.to_csv('%s/coefficients_%s.csv' % (OUT_DIR, i), index=False)
     print('\n\nModel intercept:', logistic_clf.intercept_)
 
     pred_ps_train = logistic_clf.predict_proba(X_train)
@@ -160,7 +158,7 @@ def scale_data(X_train, X_valid, X_test):
     return X_train, X_valid, X_test
 
 def get_best_C(X_train, y_train, X_valid, y_valid):
-		l1_mods = []
+		l_mods = []
 		Cs = np.logspace(-4, 0, 5)
 		best_C = np.nan
 		best_accuracy = 0
@@ -168,7 +166,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid):
 		best_penalty = None
 		for C in Cs:
 				print('Testing C =', C)
-				for penalty in ['l1']:
+				for penalty in [REGULARIZER]:
 						print('  %s:' % penalty, end=' ')
 						logistic_clf = LogisticRegression(C=C, penalty=penalty, solver='saga', n_jobs=-1)
 						logistic_clf.fit(X_train, y_train)
@@ -179,8 +177,9 @@ def get_best_C(X_train, y_train, X_valid, y_valid):
 								best_accuaracy = accuracy
 								best_penalty = penalty
 						print(round(accuracy, 4))
-						l1_mods.append(accuracy)
+						l_mods.append(accuracy)
 						print('Elapsed time: %.2f minutes' % ((time.time() - t0) / 60))
+		print(l_mods)
 		return best_C
 
 def get_predictions_at_threshold(pred_ps, threshold):
@@ -225,8 +224,8 @@ def pred_plot(actual_matrix, pred_matrix, error_matrix, year, path):
 def make_actual_pred_and_error_matrices(
         data, year, pred_type='preds', plot=False, path=''):
     data_year = data.loc[data.year == year, :]
-    actual_matrix = util.column2matrix(data_year, 'btl_t', cell_dim=1)
-    pred_matrix   = util.column2matrix(data_year, pred_type, cell_dim=1)
+    actual_matrix = util.column2matrix(data_year, 'btl_t')
+    pred_matrix   = util.column2matrix(data_year, pred_type)
     error_matrix  = pred_matrix - actual_matrix
     if plot:
         pred_plot(actual_matrix, pred_matrix, error_matrix, year, path)
