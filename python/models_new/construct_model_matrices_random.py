@@ -96,7 +96,7 @@ class ModelMatrixConstructor:
             variables = list(set(variables))
         fixed_variations = []
         for var in all_variables:
-            if ':' not in var:
+            if ':' not in var and ('_sq' in var or '_cub' in var):
                 for f in fixed:
                     if f in var:
                         fixed_variations.append(var)
