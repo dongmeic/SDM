@@ -33,8 +33,11 @@ def main():
     plt.rcParams['figure.figsize'] = 10, 8
     TEST = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
-    matrix_constructor.construct_model_matrices()
+    matrix_constructor.construct_model_matrices()  
     test_vars = matrix_constructor.get_random_variables()
+    for var in ['x', 'y', 'year']:
+    		test_vars.append(var)
+    test_vars = sorted(test_vars)    
     data_sets = matrix_constructor.select_variables(test_vars)
     [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]] = data_sets
     for (data_set, name) in zip(data_sets, ['Train', 'Valid', 'Test']):
@@ -51,6 +54,10 @@ def main():
     full_train['btl_t'] = y_train['btl_t']
     full_valid['btl_t'] = y_valid['btl_t']
     full_test['btl_t'] = y_test['btl_t']
+    drop = ['x', 'y', 'year']
+    X_train = X_train.drop(drop, axis=1)
+    X_valid = X_valid.drop(drop, axis=1)
+    X_test  = X_test.drop(drop, axis=1)
     predictors = list(X_train)
     X_train, X_valid, X_test = scale_data(X_train, X_valid, X_test)
     y_train = y_train['btl_t'].values.reshape(-1)
