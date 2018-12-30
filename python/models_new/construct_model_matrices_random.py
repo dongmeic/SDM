@@ -17,15 +17,15 @@ class ModelMatrixConstructor:
             'MarTmin', 'fallTmean', 'Tvar', 'JanMin', 'age', 'density', 'lon',
             'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
             'winterMin', 'TMarAug', 'summerTmean']
-        self.INTERACTIONS = []
+        self.INTERACTIONS = ['lon:lat:etopo1', 'lon:sum9_diff', 'lat:sum9_diff', 
+                             'etopo1:sum9_diff', 'btl_t1:btl_t2', 'sum9_t1:sum9_t2']
         self.DROP = ['x.new', 'y.new', 'xy']
         self.FIXED = ['age', 'density', 'lat', 'lon', 'etopo1', 'btl_t1',
-                      'btl_t2', 'sum9_t1', 'sum9_t2']
+                      'btl_t2', 'sum9_t1', 'sum9_t2', 'sum9_diff'] + self.INTERACTIONS
         self.categories = {
-            'cold1': ['Jan20', 'Mar20'],
-            'cold2': ['JanTmin', 'MarTmin', 'OctTmin', 'Tmin', 'Acs',
-                      'max.drop', 'OctMin', 'JanMin', 'MarMin', 'winterMin',
-                      'minT'],
+            'cold1': ['Jan20', 'Mar20', 'Acs', 'max.drop'],
+            'cold2': ['JanTmin', 'MarTmin', 'OctTmin', 'Tmin', 'OctMin', 
+                      'JanMin', 'MarMin', 'winterMin', 'minT'],
             'season': ['TMarAug', 'fallTmean', 'Tmean', 'Tvar', 'TOctSep',
                        'ddAugJul', 'ddAugJun'],
             'summer_temp': ['summerTmean', 'AugTmean', 'AugTmax', 'maxAugT',
@@ -47,9 +47,9 @@ class ModelMatrixConstructor:
             [f for f in os.listdir(self.DATA_DIR) if 'y_valid' in f])
         test_y_files  = sorted(
             [f for f in os.listdir(self.DATA_DIR) if 'y_test' in f])
-        print('Train:\n ', train_X_files, '\n ', train_y_files)
-        print('Valid:\n ', valid_X_files, '\n ', valid_y_files)
-        print('Test:\n ',  test_X_files,  '\n ', test_y_files)
+        #print('Train:\n ', train_X_files, '\n ', train_y_files)
+        #print('Valid:\n ', valid_X_files, '\n ', valid_y_files)
+        #print('Test:\n ',  test_X_files,  '\n ', test_y_files)
         X_train = self._load_data_set(train_X_files)
         X_valid = self._load_data_set(valid_X_files)
         X_test  = self._load_data_set(test_X_files)
@@ -96,14 +96,15 @@ class ModelMatrixConstructor:
             variables = list(set(variables))
         fixed_variations = []
         for var in all_variables:
-            if ':' not in var and ('_sq' in var or '_cub' in var):
-                for f in fixed:
-                    if f in var:
-                        fixed_variations.append(var)
+            for f in fixed:
+                if ':' not in f and (f == var[:-3] or f == var[:-4]):
+                    fixed_variations.append(var)
         fixed += fixed_variations
         fixed = list(set(fixed))
+        print('fixed:', fixed)
+        print('variables:', variables)
         interactions = ['%s:%s' % (x, y)
-                        for x in fixed if '_' not in x and 'age' not in x
+                        for x in fixed if '_' not in x and 'age' not in x and ':' not in x
                         for y in variables if '_' not in y]
         return fixed + variables + interactions
             
