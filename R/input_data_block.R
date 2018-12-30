@@ -56,7 +56,7 @@ foreach (i=3:nyr)%dopar%{
   n <- length(unique(ndf$xy))
   valid.test.idx <- sample(unique(ndf$xy),round(0.2*n))
   valid.idx <- valid.test.idx[1:151]
-  test.idx <- valid.test.idx[152:302]
+  test.idx <- valid.test.idx[152:303]
   train.idx <- unique(ndf$xy)[!(unique(ndf$xy) %in% valid.test.idx)]
   test <- ndf[ndf$xy %in% test.idx,]
   valid <- ndf[ndf$xy %in% valid.idx,]
