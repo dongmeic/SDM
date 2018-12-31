@@ -66,7 +66,7 @@ def main():
 
     print('Fitting model...')
     BEST_C = get_best_C(X_train, y_train, X_valid, y_valid)
-    logistic_clf = LogisticRegression(C=BEST_C, penalty=REGULARIZER)
+    logistic_clf = LogisticRegression(C=BEST_C, penalty=REGULARIZER, solver='saga', n_jobs=-1)
     logistic_clf.fit(X_train, y_train)
     preds = logistic_clf.predict(X_test)
     probs = logistic_clf.predict_proba(X_test)
