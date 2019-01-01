@@ -49,7 +49,8 @@ def main():
     full_train['btl_t'] = y_train['btl_t']
     full_valid['btl_t'] = y_valid['btl_t']
     full_test['btl_t'] = y_test['btl_t']
-    drop = ['x', 'y', 'year']
+    drop = ['x', 'y', 'year', 'vgt', 'lon', 'lat', 'etopo1', 'lon_cub', 
+    				'lat_sq', 'lat_cub', 'etopo1_sq', 'lon:lat:etopo1']
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)
     X_test  = X_test.drop(drop, axis=1)
@@ -60,7 +61,7 @@ def main():
     y_test  = y_test['btl_t'].values.reshape(-1)
 
     print('Fitting model...')
-    BEST_C = get_best_C(X_train, y_train, X_valid, y_valid)
+    BEST_C = get_best_C(X_train, y_train, X_valid, y_valid, predictors)
     logistic_clf = LogisticRegression(C=BEST_C, penalty=REGULARIZER, solver='saga', n_jobs=-1)
     logistic_clf.fit(X_train, y_train)
     preds = logistic_clf.predict(X_test)
@@ -113,7 +114,6 @@ def main():
     years = sorted(full_train.year.unique())
     df = all_data[['x', 'y', 'year', 'btl_t', 'probs', 'preds']]
     df.to_csv('%s/predictions.csv' % OUT_DIR, index=False)
-    print('all done!')
 
     print('\n\nGenerating prediction plots==================================')
     for year in years:
@@ -142,6 +142,7 @@ def main():
             pred_type='probs',
             plot=True,
             path='%s/prob_plot_all_%d.png' % (IMG_DIR, year))
+    print('all done!')
             
 def make_dirs():
     for d in [IMG_DIR, OUT_DIR]:
@@ -161,14 +162,13 @@ def scale_data(X_train, X_valid, X_test):
     X_test  = scaler.transform(X_test)
     return X_train, X_valid, X_test
 
-def get_best_C(X_train, y_train, X_valid, y_valid):
+def get_best_C(X_train, y_train, X_valid, y_valid, predictors):
 		l_mods = []
 		Cs = np.logspace(-4, 0, 5)
 		best_C = np.nan
 		best_accuracy = 0
 		t0 = time.time()
 		best_penalty = None
-		predictors = list(X_train)
 		for C in Cs:
 				print('Testing C =', C)
 				for penalty in [REGULARIZER]:
