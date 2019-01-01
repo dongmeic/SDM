@@ -12,11 +12,12 @@ class ModelMatrixConstructor:
             'Tmin', 'mi', 'lat', 'vpd', 'PcumOctSep', 'summerP0', 'ddAugJul',
             'AugMaxT', 'cwd', 'age', 'maxT', 'PPT', 'Acs', 'wd', 'MarMin',
             'summerP0', 'OctTmin', 'summerP1', 'OctMin', 'ddAugJun', 'JanTmin',
-            'summerP2', 'max.drop', 'Pmean', 'PMarAug', 'etopo1', 'POctSep']
+            'summerP2', 'max.drop', 'Pmean', 'PMarAug', 'etopo1', 'POctSep',
+            'Mar20', 'sum9_diff']
         self.CUBE = [
             'MarTmin', 'fallTmean', 'Tvar', 'JanMin', 'age', 'density', 'lon',
             'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
-            'winterMin', 'TMarAug', 'summerTmean']
+            'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff']
         self.INTERACTIONS = ['lon:lat:etopo1', 'lon:sum9_diff', 'lat:sum9_diff', 
                              'etopo1:sum9_diff', 'btl_t1:btl_t2', 'sum9_t1:sum9_t2']
         self.DROP = ['x.new', 'y.new', 'xy']
@@ -85,13 +86,23 @@ class ModelMatrixConstructor:
         except BaseException as e:
             print('Error in select_variables():\n%s' % e)
     
-    def get_random_variables(self):
+    def get_variables(self, random=False):
         variables = []
         fixed = self.FIXED.copy()
         all_variables = list(self.data_sets[0][0])
-        selected = [np.random.choice(vs) for k, vs in self.categories.items()]
+        if random:
+            selected = [np.random.choice(vs) for k, vs in self.categories.items()]
+        else:
+            selected = []
+            for key, value in self.categories.items():
+                for i in range(0,len(value)):
+                    selected.append(value[i])
         for var in selected:
-            variations = [x for x in all_variables if var in x and ':' not in x]
+            variations = []
+            if var in self.SQUARE:
+                variations.append(var)
+            if var in self.CUBE:
+                variations.append(var)
             variables += variations
             variables = list(set(variables))
         fixed_variations = []
