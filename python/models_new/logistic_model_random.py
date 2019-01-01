@@ -111,7 +111,7 @@ def main():
     all_data = full_train.append(full_valid).append(full_test)
     all_data.index = range(all_data.shape[0])
     years = sorted(full_train.year.unique())
-    df = all_data[['x', 'y', 'year', 'btl', 'probs', 'preds']]
+    df = all_data[['x', 'y', 'year', 'btl_t', 'probs', 'preds']]
     df.to_csv('%s/predictions.csv' % OUT_DIR, index=False)
     print('all done!')
 
