@@ -36,16 +36,16 @@ for (j in 1:ncol(train)) {
               length(unique(train[, j]))))
 }
 
-cold0 <- c('Jan20','Mar20')
-nons <- c(cold0, 'vgt','btl_t1', 'btl_t2', 'sum9_t1', 'sum9_t2')
-cold <- c("JanTmin","MarTmin","OctTmin","Tmin","Acs","max.drop","OctMin","JanMin","MarMin","winterMin","minT") 
-season <- c("TMarAug","fallTmean","Tmean","Tvar","TOctSep","ddAugJul","ddAugJun")
-summerT <- c("summerTmean","AugTmean","AugTmax","maxAugT","OptTsum","AugMaxT","maxT")
-drought <- c("PMarAug", "summerP0","summerP1","summerP2","Pmean","POctSep","PcumOctSep","PPT")
-drought1 <- c("wd","vpd","mi","cwd")
-tree <- c("age", "density")
-loc <- c("lon", "lat", "etopo1")
-beetle <- c("btl_t1", "btl_t2", "sum9_t1", "sum9_t2")
+cold0 <- c('Jan20','Mar20','Acs','max.drop')
+nons <- c('vgt', 'btl_t1', 'btl_t2', 'sum9_t1', 'sum9_t2')
+cold <- c('JanTmin', 'MarTmin', 'OctTmin', 'Tmin', 'OctMin', 'JanMin', 'MarMin', 'winterMin', 'minT') 
+season <- c('TMarAug', 'fallTmean', 'Tmean', 'Tvar', 'TOctSep', 'ddAugJul', 'ddAugJun')
+summerT <- c('summerTmean', 'AugTmean', 'AugTmax', 'maxAugT', 'OptTsum', 'AugMaxT', 'maxT')
+drought <- c('PMarAug', 'summerP0', 'summerP1', 'summerP2', 'Pmean', 'POctSep', 'PcumOctSep', 'PPT')
+drought1 <- c('wd', 'vpd', 'mi', 'cwd')
+tree <- c('age', 'density')
+loc <- c('lon', 'lat', 'etopo1')
+beetle <- c('btl_t1', 'btl_t2', 'sum9_t1', 'sum9_t2', 'sum9_diff')
 
 gam.sample <- function(n.sample,st) {
   random.preds <- c(sample(cold0, 1),sample(cold, 1),sample(season, 1),sample(summerT, 1),

@@ -29,7 +29,7 @@ def main():
     TEST = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
-    test_vars = matrix_constructor.get_random_variables()
+    test_vars = matrix_constructor.get_variables()
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
     test_vars = sorted(test_vars)
@@ -111,6 +111,9 @@ def main():
     all_data = full_train.append(full_valid).append(full_test)
     all_data.index = range(all_data.shape[0])
     years = sorted(full_train.year.unique())
+    df = all_data[['x', 'y', 'year', 'btl', 'probs', 'preds']]
+    df.to_csv('%s/predictions.csv' % OUT_DIR, index=False)
+    print('all done!')
 
     print('\n\nGenerating prediction plots==================================')
     for year in years:
@@ -165,6 +168,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid):
 		best_accuracy = 0
 		t0 = time.time()
 		best_penalty = None
+		predictors = list(X_train)
 		for C in Cs:
 				print('Testing C =', C)
 				for penalty in [REGULARIZER]:
@@ -173,6 +177,15 @@ def get_best_C(X_train, y_train, X_valid, y_valid):
 						logistic_clf.fit(X_train, y_train)
 						preds = logistic_clf.predict(X_valid)
 						accuracy = sum(y_valid == preds) / len(preds)
+						a = [[pred, coef] for pred, coef in zip(predictors, logistic_clf.coef_[0])]
+						sig_preds = []
+						sig_coefs = []
+						for pred, coef in a:
+								if abs(coef) > 0:
+										sig_preds.append(pred)
+										sig_coefs.append(coef)
+						print([sig_preds[i] for i in argsort(np.abs(sig_coefs))[::-1]])
+						print([sig_coefs[i] for i in argsort(np.abs(sig_coefs))[::-1]])						
 						if (accuracy > best_accuracy):
 								best_C = C
 								best_accuaracy = accuracy
