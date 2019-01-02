@@ -33,8 +33,9 @@ def main():
     plt.rcParams['figure.figsize'] = 10, 8
     TEST = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
-    matrix_constructor.construct_model_matrices()  
-    test_vars = matrix_constructor.get_variables(random=True)
+    matrix_constructor.construct_model_matrices()
+    test_vars = matrix_constructor.get_variables(random=True)  
+    #test_vars = matrix_constructor.add_variations(random=True)
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
     test_vars = sorted(test_vars)    
@@ -54,8 +55,9 @@ def main():
     full_train['btl_t'] = y_train['btl_t']
     full_valid['btl_t'] = y_valid['btl_t']
     full_test['btl_t'] = y_test['btl_t']
-    drop = ['x', 'y', 'year', 'vgt', 'lon', 'lat', 'etopo1', 'lon_cub', 
-    				'lat_sq', 'lat_cub', 'etopo1_sq', 'lon:lat:etopo1']
+    drop = ['x', 'y', 'year']
+#     drop = ['x', 'y', 'year', 'vgt', 'lon', 'lat', 'etopo1', 'lon_cub', 
+#     				'lat_sq', 'lat_cub', 'etopo1_sq', 'lon:lat:etopo1']
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)
     X_test  = X_test.drop(drop, axis=1)
@@ -195,7 +197,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid, predictors):
 								best_C = C
 								best_accuaracy = accuracy
 								best_penalty = penalty
-						print(round(accuracy, 4))
+						print('Validation accuracy:', round(accuracy, 4))
 						l_mods.append(accuracy)
 						print('Elapsed time: %.2f minutes' % ((time.time() - t0) / 60))
 		print(l_mods)

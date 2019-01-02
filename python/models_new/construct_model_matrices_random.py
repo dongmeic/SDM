@@ -87,9 +87,6 @@ class ModelMatrixConstructor:
             print('Error in select_variables():\n%s' % e)
     
     def get_variables(self, random=False):
-        variables = []
-        fixed = self.FIXED.copy()
-        all_variables = list(self.data_sets[0][0])
         if random:
             selected = [np.random.choice(vs) for k, vs in self.categories.items()]
         else:
@@ -97,27 +94,37 @@ class ModelMatrixConstructor:
             for key, value in self.categories.items():
                 for i in range(0,len(value)):
                     selected.append(value[i])
-        for var in selected:
-            variations = []
-            if var in self.SQUARE:
-                variations.append(var)
-            if var in self.CUBE:
-                variations.append(var)
-            variables += variations
-            variables = list(set(variables))
-        fixed_variations = []
-        for var in all_variables:
-            for f in fixed:
-                if ':' not in f and (f == var[:-3] or f == var[:-4]):
-                    fixed_variations.append(var)
-        fixed += fixed_variations
-        fixed = list(set(fixed))
-        print('fixed:', fixed)
-        print('variables:', variables)
-        interactions = ['%s:%s' % (x, y)
-                        for x in fixed if '_' not in x and 'age' not in x and 'vgt' not in x and ':' not in x
-                        for y in variables if '_' not in y]
-        return fixed + variables + interactions
+        return selected        
+        
+    def add_variations(self, random=False):
+    		variables = []
+    		fixed = self.FIXED.copy()
+    		all_variables = list(self.data_sets[0][0])
+    		if random:
+    				selected = self.get_variables(random=True)
+    		else:
+    				selected = self.get_variables()
+    		for var in selected:
+    				variations = []
+    				if var in self.SQUARE:
+    						variations.append(var)
+    				if var in self.CUBE:
+    						variations.append(var)
+    				variables += variations
+    				variables = list(set(variables))
+    		fixed_variations = []
+    		for var in all_variables:
+    				for f in fixed:
+    						if ':' not in f and (f == var[:-3] or f == var[:-4]):
+    								fixed_variations.append(var)
+    		fixed += fixed_variations
+    		fixed = list(set(fixed))
+    		print('fixed:', fixed)
+    		print('variables:', variables)
+    		interactions = ['%s:%s' % (x, y)
+    										for x in fixed if '_' not in x and 'age' not in x and 'vgt' not in x and ':' not in x
+    										for y in variables if '_' not in y]
+    		return fixed + variables + interactions
             
     def get_data_sets(self):
         return self.data_sets
