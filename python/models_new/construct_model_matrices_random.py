@@ -117,8 +117,7 @@ class ModelMatrixConstructor:
     		return list(set(variables))
     			    						  				    		    		
     def add_beetle_vars(self, random=False):
-    		variables = self.add_interactions(random=random) + 
-    								self.add_variations(random=random)
+    		variables = self.add_interactions(random=random) + self.add_variations(random=random)
     		variables = list(set(variables))
     		fixed = self.FIXED.copy()
     		fixed_variations = []
