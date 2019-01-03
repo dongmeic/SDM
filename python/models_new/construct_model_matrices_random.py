@@ -117,11 +117,17 @@ class ModelMatrixConstructor:
     		return list(set(variables))
     			    						  				    		    		
     def add_beetle_vars(self, random=False):
-    		variables = self.add_interactions(random=random) + self.add_variations(random=random)
-    		variables = list(set(variables))
+    		variables = []
     		fixed = self.FIXED.copy()
+    		all_vars = list(self.data_sets[0][0])
+    		selected = self.get_variables(random=random)
+    		all_vars = [var for var in all_vars if ':' not in var]
+    		for var in selected:
+    				variations = [v for v in all_vars if var in v]
+    				variables += variations
+    				variables = list(set(variables))
     		fixed_variations = []
-    		for var in all_variables:
+    		for var in all_vars:
     				for f in fixed:
     						if ':' not in f and (f == var[:-3] or f == var[:-4]):
     								fixed_variations.append(var)
