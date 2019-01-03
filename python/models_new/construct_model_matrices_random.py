@@ -109,20 +109,12 @@ class ModelMatrixConstructor:
     def add_variations(self, random=False):
     		variables = []
     		selected = self.get_variables(random=random)
+    		all_vars = list(self.data_sets[0][0])
+    		all_vars = [var for var in all_vars if ':' not in var]
     		for var in selected:
-    				variations = []
-    				if var in self.SQUARE:
-    						variations.append(var)
-    				if var in self.CUBE:
-    						variations.append(var)
+    				variations = [v for v in all_vars if var in v]
     				variables += variations
-    				variables = list(set(variables))
-    		interactions = []
-    		for var1 in vars:
-    				for var2 in selected:
-    						var = var1 + ':' + var2
-    						interactions.append(var)
-    		return variables + interactions   		
+    		return list(set(variables))
     			    						  				    		    		
     def add_beetle_vars(self, random=False):
     		variables = []
