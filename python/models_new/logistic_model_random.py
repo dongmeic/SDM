@@ -18,8 +18,8 @@ import model_utils_new as util
 from construct_model_matrices_random import ModelMatrixConstructor
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
-IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/test'
-OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/test2'
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test2'
 REGULARIZER = 'l1'
 print('Regularizer:', REGULARIZER)
 
@@ -29,8 +29,9 @@ def main():
     TEST = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
-    test_vars = matrix_constructor.get_variables()
-#     test_vars = matrix_constructor.add_variations()
+    #test_vars = matrix_constructor.get_variables()
+    #test_vars = matrix_constructor.add_interactions()
+    test_vars = matrix_constructor.add_variations()
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
     test_vars = sorted(test_vars)

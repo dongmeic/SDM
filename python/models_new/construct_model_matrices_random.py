@@ -96,14 +96,39 @@ class ModelMatrixConstructor:
                     selected.append(value[i])
         return selected        
         
+    def add_interactions(self, random=False):
+    		vars = ['etopo1']
+    		selected = self.get_variables(random=random)
+    		interactions = []
+    		for var1 in vars:
+    				for var2 in selected:
+    						var = var1 + ':' + var2
+    						interactions.append(var)
+    		return selected + interactions
+    
     def add_variations(self, random=False):
+    		variables = []
+    		selected = self.get_variables(random=random)
+    		for var in selected:
+    				variations = []
+    				if var in self.SQUARE:
+    						variations.append(var)
+    				if var in self.CUBE:
+    						variations.append(var)
+    				variables += variations
+    				variables = list(set(variables))
+    		interactions = []
+    		for var1 in vars:
+    				for var2 in selected:
+    						var = var1 + ':' + var2
+    						interactions.append(var)
+    		return variables + interactions   		
+    			    						  				    		    		
+    def add_beetle_vars(self, random=False):
     		variables = []
     		fixed = self.FIXED.copy()
     		all_variables = list(self.data_sets[0][0])
-    		if random:
-    				selected = self.get_variables(random=True)
-    		else:
-    				selected = self.get_variables()
+    		selected = self.get_variables(random=random)
     		for var in selected:
     				variations = []
     				if var in self.SQUARE:

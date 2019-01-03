@@ -34,8 +34,9 @@ def main():
     TEST = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
-    test_vars = matrix_constructor.get_variables(random=True)  
-    #test_vars = matrix_constructor.add_variations(random=True)
+    #test_vars = matrix_constructor.get_variables(random=True)
+    #test_vars = matrix_constructor.add_interactions(random=True)  
+    test_vars = matrix_constructor.add_variations(random=True)
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
     test_vars = sorted(test_vars)    
