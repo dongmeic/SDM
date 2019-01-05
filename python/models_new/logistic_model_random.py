@@ -18,8 +18,8 @@ import model_utils_new as util
 from construct_model_matrices_random import ModelMatrixConstructor
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
-IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/test3'
-OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test3'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/test5'
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test5'
 REGULARIZER = 'l1'
 print('Regularizer:', REGULARIZER)
 
@@ -30,9 +30,9 @@ def main():
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
     #test_vars = matrix_constructor.get_variables()
-    #test_vars = matrix_constructor.add_interactions()
+    test_vars = matrix_constructor.add_interactions()
     #test_vars = matrix_constructor.add_variations()
-    test_vars = matrix_constructor.add_beetle_vars()
+    #test_vars = matrix_constructor.add_beetle_vars()
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
     test_vars = sorted(test_vars)
@@ -55,6 +55,8 @@ def main():
     drop = ['x', 'y', 'year']
 #     drop = ['x', 'y', 'year', 'vgt', 'lon', 'lat', 'etopo1', 'lon_cub', 
 #     				'lat_sq', 'lat_cub', 'etopo1_sq', 'lon:lat:etopo1']
+		btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
+		drop += btl_sum9
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)
     X_test  = X_test.drop(drop, axis=1)
