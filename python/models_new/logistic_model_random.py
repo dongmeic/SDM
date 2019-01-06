@@ -53,10 +53,8 @@ def main():
     full_valid['btl_t'] = y_valid['btl_t']
     full_test['btl_t'] = y_test['btl_t']
     drop = ['x', 'y', 'year']
-#     drop = ['x', 'y', 'year', 'vgt', 'lon', 'lat', 'etopo1', 'lon_cub', 
-#     				'lat_sq', 'lat_cub', 'etopo1_sq', 'lon:lat:etopo1']
-		btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
-		drop += btl_sum9
+    btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
+    drop += btl_sum9
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)
     X_test  = X_test.drop(drop, axis=1)
