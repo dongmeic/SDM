@@ -1,5 +1,6 @@
 # Created by Dongmei CHEN
 # Modified from sftp://dongmeic:@talapas-ln1.uoregon.edu//gpfs/projects/gavingrp/dongmeic/sdm/R/logistic_model_output.R
+# Run in interactive mode
 
 library(ncdf4)
 library(lattice)
@@ -33,6 +34,11 @@ get.spdf <- function(prob, year){
 	spdf <- SpatialPointsDataFrame(coords = xy, data = df, proj4string = crs)
 	return(spdf)
 }
+
+xy <- data.frame(loc[,c(1,2)])
+coordinates(xy) <- c('x', 'y')
+proj4string(xy) <- crs
+loc.spdf <- SpatialPointsDataFrame(coords = xy, data = loc, proj4string = crs)
 
 nclr <- 5
 color <- "RdYlGn"
@@ -82,6 +88,101 @@ path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test3/'
 prob1 <- read.csv(paste0(path, file))
 probmapping_ts(prob1, "model_with_beetle_variables")
 
+path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test/'
+prob2 <- read.csv(paste0(path, file))
+probmapping_ts(prob2, "model_with_only_bioclm")
+
 year <- 1998
 input <- read.csv(paste0('/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input/input_data_',year,'.csv'))
 
+path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test5/'
+file <- 'coefficients.csv'
+coeff <- read.csv(paste0(path, file), stringsAsFactors=FALSE)
+squares <- grep('_sq', coeff$predictor, value=TRUE)
+cubes <- grep('_cub', coeff$predictor, value=TRUE)
+interactions <- grep(':', coeff$predictor, value=TRUE)
+singles <- coeff$predictor[!(coeff$predictor %in% c(squares, cubes, interactions))]
+ignore <- c('btl_t', 'x', 'y','year')
+predictors <- input[,-which(colnames(input) %in% ignore)]
+preds <- predictors[,singles] 
+# calculate squares
+for (i in 1:length(squares)){
+	var <- strsplit(squares[i], "_")[[1]][1]
+	preds[,squares[i]] <- (preds[,var])^2
+	cat(sprintf('Calculated %s ...\n', squares[i]))
+}
+# calculate cubes
+for (i in 1:length(cubes)){
+	var <- strsplit(cubes[i], "_")[[1]][1]
+	preds[,cubes[i]] <- (preds[,var])^3
+	cat(sprintf('Calculated %s ...\n', cubes[i]))
+}
+# calculate interactions
+for( i in 1:length(interactions)){
+	#var <- gsub(":", "_", interactions[i])
+	v1 <- strsplit(interactions[i], ":")[[1]][1]; v2 <- strsplit(interactions[i], ":")[[1]][2]
+	#preds[,var] <- preds[,v1] * preds[,v2]
+	preds[,interactions[i]] <- preds[,v1] * preds[,v2]
+	cat(sprintf('Calculated %s ...\n', interactions[i]))
+}
+
+SQUARE = ['Tmin', 'mi', 'lat', 'vpd', 'PcumOctSep', 'summerP0', 'ddAugJul',
+					'AugMaxT', 'cwd', 'age', 'maxT', 'PPT', 'Acs', 'wd', 'MarMin',
+          'summerP0', 'OctTmin', 'summerP1', 'OctMin', 'ddAugJun', 'JanTmin',
+          'summerP2', 'max.drop', 'Pmean', 'PMarAug', 'etopo1', 'POctSep',
+          'Mar20', 'sum9_diff']
+CUBE = ['MarTmin', 'fallTmean', 'Tvar', 'JanMin', 'age', 'density', 'lon',
+        'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
+        'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff']
+
+#var <- '^Tmean|:Tmean'
+var <- 'cwd'
+selected <- grep(var, coeff$predictor, value=TRUE)
+preds_1 <- scale(preds[,colnames(preds)[!(colnames(preds) %in% selected)]])
+# get the median values for each predictors
+median <- apply(preds_1, 2, median)
+medians <- data.frame(predictor=names(median), median=as.numeric(median), stringsAsFactors = FALSE)
+        
+intercept = -4.43337254; cons <- intercept
+for(i in 1:dim(medians)[1]){
+	value <- coeff$coef[which(coeff$predictor==medians$predictor[i])] * medians$median[i]
+	cons <- cons + value
+	cat(sprintf('Calculated constant %s ...\n', medians$predictor[i]))
+}
+
+#var <- 'vpd'
+#var <- 'maxAugT'
+#var <- 'Tvar'
+#var <- 'summerP0'
+#var <- 'Tmean'
+#var <- 'Acs'
+#var <- 'OctTmin'
+#var <- 'JanTmin'
+var <- 'cwd'
+selected_coeffs <- coeff$coef[which(coeff$predictor %in% selected)]
+df <- data.frame(var=selected, coeff=selected_coeffs, stringsAsFactors = FALSE)
+lon.cons = df$coeff[grep('lon:', df$var)] * medians$median[which(medians$predictor=='lon')]
+lat.cons = df$coeff[grep('lat:', df$var)] * medians$median[which(medians$predictor=='lat')]
+etopo1.cons = df$coeff[grep('etopo1:', df$var)]  * medians$median[which(medians$predictor=='etopo1')]
+x <- scale(input[,var])[,1]
+#y <- cons + lon.cons * x + lat.cons * x + etopo1.cons * x + df$coeff[grep('_sq', df$var)] * x * x + df$coeff[which(df$var==var)] * x
+#y <- cons + lon.cons * x + lat.cons * x + etopo1.cons * x + df$coeff[which(df$var==var)] * x
+#y <- cons + lon.cons * x + lat.cons * x + etopo1.cons * x + df$coeff[grep('_cub', df$var)] * x * x * x + df$coeff[which(df$var==var)] * x
+pred.y <- exp(y)/(1+exp(y))
+summary(pred.y)
+
+probmapping.var <- function(pred.y){
+	plotvar <- pred.y
+	class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=3)
+	colcode <- findColours(class, plotclr)
+	png(paste0("prob_",var,'_',year,"_test.png"), width=6, height=5, units="in", res=300)
+	par(mfrow=c(1,1),mar=c(0.5,0,1.5,0))
+	plot(loc.spdf, col=colcode, main=paste("Beetle probability predicted in", year, 'by variable', var), pch=19, cex=0.1)
+	plot(canada.prov, col=rgb(0.7,0.7,0.7,0.7), add=T)
+	plot(us.states, col=rgb(0.7,0.7,0.7,0.7), add=T)
+	plot(lrglakes, border=rgb(0,0,0.3,0.1),add=T)
+	legend('left',legend=names(attr(colcode, "table")),
+					 fill=attr(colcode, "palette"), cex=1.2, title='Probability', bty="n")
+	dev.off()
+}
+probmapping.var(pred.y)
