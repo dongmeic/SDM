@@ -30,9 +30,9 @@ def main():
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
     #test_vars = matrix_constructor.get_variables()
-    test_vars = matrix_constructor.add_interactions()
+    #test_vars = matrix_constructor.add_interactions()
     #test_vars = matrix_constructor.add_variations()
-    #test_vars = matrix_constructor.add_beetle_vars()
+    test_vars = matrix_constructor.add_beetle_vars()
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
     test_vars = sorted(test_vars)
