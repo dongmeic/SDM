@@ -94,6 +94,17 @@ probmapping_ts(prob2, "model_with_only_bioclm")
 
 
 year <- 1998
+
+get.spdf.btl <- function(year){
+	input <- read.csv(paste0('/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input/input_data_',year,'.csv'))
+	df <- input[,c('btl_t', 'x', 'y')]
+	xy <- data.frame(df[,c(2,3)])
+	coordinates(xy) <- c('x', 'y')
+	proj4string(xy) <- crs
+	spdf <- SpatialPointsDataFrame(coords = xy, data = df, proj4string = crs)
+	return(spdf)
+}
+
 get.input <- function(year){
 	input <- read.csv(paste0('/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input/input_data_',year,'.csv'))
 
@@ -208,3 +219,25 @@ probmapping.var <- function(pred.y){
 
 probmapping.var(pred.y)
 
+probmapping.var.ts <- function(var){
+	png(paste0('beelte_probability_predicted_by_',var,".png"), width=18, height=12, units="in", res=300)
+	par(mfrow=c(3,6),mar=c(0.5,0.5,1.5,0))
+	for (year in 1998:2015){
+		preds <- get.input(year)
+		pred.y <- get.pred.y(preds, var)
+		plotvar <- pred.y
+		class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=3)
+		colcode <- findColours(class, plotclr)
+		spdf <- get.spdf.btl(year)
+		spdf1 <- spdf[spdf$btl_t==1,]
+		plot(loc.spdf, col=colcode, pch=19, cex=0.1)
+		title(main=year, adj = 0.5, line = -1, cex.main=2)
+		plot(spdf1, pch=19, cex=0.1, col=rgb(0,0,1,0.1),add=T)
+		legend(-2750000, 550000,legend=names(attr(colcode, "table")),
+						 fill=attr(colcode, "palette"), title='', bty="n")
+		print(year)
+	}	
+	dev.off()
+}
+
+probmapping.var.ts('wd')
