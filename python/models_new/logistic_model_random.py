@@ -17,22 +17,32 @@ sys.path.append('/gpfs/projects/gavingrp/dongmeic/sdm/python/models_new')
 import model_utils_new as util
 from construct_model_matrices_random import ModelMatrixConstructor
 
+# model1 - model with only bioclimatic variables
+# model2 - model with bioclimatic variables, transformation and interactions
+# model3 - model with bioclimatic variables, transformation, interactions and beetle variables
+
+model = 'model1'
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
-IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/test5'
-OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test5'
-REGULARIZER = 'l1'
+IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/' + model
+OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/' + model
+REGULARIZER = 'l2'
 print('Regularizer:', REGULARIZER)
 
 def main():
     make_dirs()
     plt.rcParams['figure.figsize'] = 10, 8
     TEST = False
+    dropBtl = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
-    #test_vars = matrix_constructor.get_variables()
+    if model == 'model1':
+    	test_vars = matrix_constructor.get_variables()
+    else:
+    	test_vars = matrix_constructor.add_beetle_vars()
+    	if model == 'model2':
+    		dropBtl = True
     #test_vars = matrix_constructor.add_interactions()
     #test_vars = matrix_constructor.add_variations()
-    test_vars = matrix_constructor.add_beetle_vars()
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
     test_vars = sorted(test_vars)
@@ -53,8 +63,10 @@ def main():
     full_valid['btl_t'] = y_valid['btl_t']
     full_test['btl_t'] = y_test['btl_t']
     drop = ['x', 'y', 'year']
-    btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
-    drop += btl_sum9
+    if dropBtl:
+    	btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
+    	btl_sum9.append('vgt')
+    	drop += btl_sum9
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)
     X_test  = X_test.drop(drop, axis=1)
@@ -175,7 +187,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid, predictors):
 		best_penalty = None
 		for C in Cs:
 				print('Testing C =', C)
-				for penalty in [REGULARIZER]:
+				for penalty in ['l1']:
 						print('  %s:' % penalty, end=' ')
 						logistic_clf = LogisticRegression(C=C, penalty=penalty, solver='saga', n_jobs=-1)
 						logistic_clf.fit(X_train, y_train)

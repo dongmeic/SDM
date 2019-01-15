@@ -21,7 +21,7 @@ class ModelMatrixConstructor:
         self.INTERACTIONS = ['lon:lat:etopo1', 'lon:sum9_diff', 'lat:sum9_diff', 
                              'etopo1:sum9_diff', 'btl_t1:btl_t2', 'sum9_t1:sum9_t2']
         self.DROP = ['x.new', 'y.new', 'xy']
-        self.FIXED = ['lat', 'lon', 'etopo1', 'btl_t1', #'age', 'density', 'vgt'
+        self.FIXED = ['lat', 'lon', 'etopo1', 'vgt', 'btl_t1', #'age', 'density'
                       'btl_t2', 'sum9_t1', 'sum9_t2', 'sum9_diff'] + self.INTERACTIONS
         self.categories = {
             'cold1': ['Jan20', 'Mar20', 'Acs', 'max.drop'],

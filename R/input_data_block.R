@@ -44,7 +44,7 @@ foreach (i=3:nyr)%dopar%{
   colnames(df)[6:9] <- c("btl_t", "btl_t1", "btl_t2", "vgt")
   colnames(df)[12:13] <- c("sum9_t1","sum9_t2")
   df$year <- rep(years[i], dim(df)[1])
-  df$vgt <- ifelse(df$btl_t==1 & df$vgt==0, 1, df$vgt)
+  #df$vgt <- ifelse(df$btl_t==1 & df$vgt==0, 1, df$vgt)
   df$sum9_diff <- df$sum9_t1 - df$sum9_t2
   bioclm <- combine_CRU_Daymet(i)[,1:61]
   df <- cbind(df[rows$rows,], bioclm)

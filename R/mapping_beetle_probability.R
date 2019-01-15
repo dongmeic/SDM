@@ -105,37 +105,34 @@ get.spdf.btl <- function(year){
 	return(spdf)
 }
 
+path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test5/'
+file <- 'coefficients.csv'
+coeff <- read.csv(paste0(path, file), stringsAsFactors=FALSE)
+squares <- grep('_sq', coeff$predictor, value=TRUE)
+cubes <- grep('_cub', coeff$predictor, value=TRUE)
+interactions <- grep(':', coeff$predictor, value=TRUE)
+singles <- coeff$predictor[!(coeff$predictor %in% c(squares, cubes, interactions))]
+ignore <- c('btl_t', 'x', 'y','year')
+
 get.input <- function(year){
 	input <- read.csv(paste0('/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input/input_data_',year,'.csv'))
-
-	path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test5/'
-	file <- 'coefficients.csv'
-	coeff <- read.csv(paste0(path, file), stringsAsFactors=FALSE)
-
-	squares <- grep('_sq', coeff$predictor, value=TRUE)
-	cubes <- grep('_cub', coeff$predictor, value=TRUE)
-	interactions <- grep(':', coeff$predictor, value=TRUE)
-	singles <- coeff$predictor[!(coeff$predictor %in% c(squares, cubes, interactions))]
-	ignore <- c('btl_t', 'x', 'y','year')
 	predictors <- input[,-which(colnames(input) %in% ignore)]
 	preds <- predictors[,singles] 
 	# calculate squares
 	for (i in 1:length(squares)){
-		var <- strsplit(squares[i], "_")[[1]][1]
+		var <- strsplit(squares[i], "_sq")[[1]][1]
 		preds[,squares[i]] <- (preds[,var])^2
 		cat(sprintf('Calculated %s ...\n', squares[i]))
 	}
 	# calculate cubes
 	for (i in 1:length(cubes)){
-		var <- strsplit(cubes[i], "_")[[1]][1]
+		var <- strsplit(cubes[i], "_cub")[[1]][1]
 		preds[,cubes[i]] <- (preds[,var])^3
 		cat(sprintf('Calculated %s ...\n', cubes[i]))
 	}
 	# calculate interactions
 	for( i in 1:length(interactions)){
-		#var <- gsub(":", "_", interactions[i])
 		v1 <- strsplit(interactions[i], ":")[[1]][1]; v2 <- strsplit(interactions[i], ":")[[1]][2]
-		#preds[,var] <- preds[,v1] * preds[,v2]
 		preds[,interactions[i]] <- preds[,v1] * preds[,v2]
 		cat(sprintf('Calculated %s ...\n', interactions[i]))
 	}	
@@ -166,7 +163,10 @@ get.pred.y <- function(preds, var){
 	}
 	print(selected)
 	
+	loc_variables <- grep('^lon|^lat|^etopo1', coeff$predictor, value=TRUE)	
 	preds_1 <- scale(preds[,colnames(preds)[!(colnames(preds) %in% selected)]])
+	#preds_1 <- scale(preds[,colnames(preds)[!(colnames(preds) %in% c(selected,loc_variables))]])
+	preds_2 <- scale(preds[,loc_variables])
 	# get the median values for each predictors
 	median <- apply(preds_1, 2, median)
 	medians <- data.frame(predictor=names(median), median=as.numeric(median), stringsAsFactors = FALSE)
@@ -177,12 +177,13 @@ get.pred.y <- function(preds, var){
 		cons <- cons + value
 		cat(sprintf('Calculated constant %s ...\n', medians$predictor[i]))
 	}
+
 	selected_coeffs <- coeff$coef[which(coeff$predictor %in% selected)]
 	df <- data.frame(var=selected, coeff=selected_coeffs, stringsAsFactors = FALSE)
-	lon.cons = df$coeff[grep('lon:', df$var)] * medians$median[which(medians$predictor=='lon')]
-	lat.cons = df$coeff[grep('lat:', df$var)] * medians$median[which(medians$predictor=='lat')]
-	etopo1.cons = df$coeff[grep('etopo1:', df$var)]  * medians$median[which(medians$predictor=='etopo1')]
-	x <- scale(input[,var])[,1]
+	lon.cons = df$coeff[grep('lon:', df$var)] * preds_2[,'lon']
+	lat.cons = df$coeff[grep('lat:', df$var)] * preds_2[,'lat']
+	etopo1.cons = df$coeff[grep('etopo1:', df$var)]  * preds_2[,'etopo1']
+	x <- scale(preds[,var])[,1]
 	
 	if(length(selected)==5 & var %in% SQUARE){
 		y <- cons + lon.cons * x + lat.cons * x + etopo1.cons * x + df$coeff[grep('_sq', df$var)] * x * x + df$coeff[which(df$var==var)] * x
@@ -195,6 +196,12 @@ get.pred.y <- function(preds, var){
 	}else{
 		print('There is some mistake!')
 	}
+# 	preds_3 <- preds_2[,colSums(is.na(preds_2))<nrow(preds_2)]
+# 	for(j in 1:dim(preds_3)[2]){
+# 		y <- y + coeff$coef[which(coeff$predictor==colnames(preds_3)[j])] * preds_3[,j]
+# 		print(summary(y))
+# 		cat(sprintf('Added constant %s ...\n', colnames(preds_3)[j]))
+# 	}
 	pred.y <- exp(y)/(1+exp(y))
 	print(summary(pred.y))
 	return(pred.y)
@@ -221,7 +228,7 @@ probmapping.var(pred.y)
 
 probmapping.var.ts <- function(var){
 	png(paste0('beelte_probability_predicted_by_',var,".png"), width=18, height=12, units="in", res=300)
-	par(mfrow=c(3,6),mar=c(0.5,0.5,1.5,0))
+	par(mfrow=c(3,6),mar=c(0.5,0,1.5,0))
 	for (year in 1998:2015){
 		preds <- get.input(year)
 		pred.y <- get.pred.y(preds, var)
@@ -234,10 +241,10 @@ probmapping.var.ts <- function(var){
 		title(main=year, adj = 0.5, line = -1, cex.main=2)
 		plot(spdf1, pch=19, cex=0.1, col=rgb(0,0,1,0.1),add=T)
 		legend(-2750000, 550000,legend=names(attr(colcode, "table")),
-						 fill=attr(colcode, "palette"), title='', bty="n")
+						 fill=attr(colcode, "palette"), title='', bty="n", cex=0.8)
 		print(year)
 	}	
 	dev.off()
 }
 
-probmapping.var.ts('wd')
+probmapping.var.ts('ddAugJun')
