@@ -133,9 +133,13 @@ def get_metrics(cm):
     print('F1:       ', F1)
 
 
-def get_auc(target, preds):
+def get_auc(target, preds, path):
     fpr, tpr, _ = roc_curve(target, preds)
     mod_auc = auc(fpr, tpr)
+    df = pd.DataFrame({'fpr': fpr, 'tpr': tpr})
+    print(df)
+    print('Writing roc data to %s...' % path)
+    df.to_csv(path+'/roc.csv', index=False)
     print('AUC:      ', mod_auc)
     return { 'fpr': fpr, 'tpr': tpr, 'auc': mod_auc }
 

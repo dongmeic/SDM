@@ -21,7 +21,7 @@ class ModelMatrixConstructor:
         self.INTERACTIONS = ['lon:lat:etopo1', 'lon:sum9_diff', 'lat:sum9_diff', 
                              'etopo1:sum9_diff', 'btl_t1:btl_t2', 'sum9_t1:sum9_t2']
         self.DROP = ['x.new', 'y.new', 'xy']
-        self.FIXED = ['lat', 'lon', 'etopo1', 'vgt', 'btl_t1', #'age', 'density'
+        self.FIXED = ['lat', 'lon', 'etopo1', 'vgt', 'btl_t1', 'age', 'density',
                       'btl_t2', 'sum9_t1', 'sum9_t2', 'sum9_diff'] + self.INTERACTIONS
         self.categories = {
             'cold1': ['Jan20', 'Mar20', 'Acs', 'max.drop'],
@@ -66,10 +66,10 @@ class ModelMatrixConstructor:
         for i, [X, y] in enumerate(data_sets):
             X = X.reindex()
             y = y.reindex()
-            # if 'density' in list(X):
-            #     X = self._fill_na(X, 'density')
-            #     y = y.loc[np.isnan(X['density']) == False, :]
-            #     X = X.loc[np.isnan(X['density']) == False, :]
+            if 'density' in list(X):
+                 X = self._fill_na(X, 'density')
+                 y = y.loc[np.isnan(X['density']) == False, :]
+                 X = X.loc[np.isnan(X['density']) == False, :]
             X = self._add_all_cols(X.copy())
             X = X.reindex()
             y = y.reindex()

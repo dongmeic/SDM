@@ -20,8 +20,9 @@ from construct_model_matrices_random import ModelMatrixConstructor
 # model1 - model with only bioclimatic variables
 # model2 - model with bioclimatic variables, transformation and interactions
 # model3 - model with bioclimatic variables, transformation, interactions and beetle variables
+# model4 - add age and density to model3
 
-model = 'model1'
+model = 'model4'
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/' + model
 OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/' + model
@@ -98,7 +99,7 @@ def main():
     cm = util.make_confusion_matrix(
             y_test, pred_ps, best_threshold['threshold'])
     metrics = util.get_metrics(cm)
-    auc_metrics = util.get_auc(y_test, pred_ps)
+    auc_metrics = util.get_auc(y_test, pred_ps, OUT_DIR)
     util.plot_roc(
         auc_metrics['fpr'], auc_metrics['tpr'], path='%s/roc.png' % IMG_DIR)
     coefs = pd.DataFrame(
