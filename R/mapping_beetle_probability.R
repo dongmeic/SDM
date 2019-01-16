@@ -117,15 +117,6 @@ ignore <- c('btl_t', 'x', 'y','year')
 
 preds <- get.input(1998)
 
-SQUARE = c('Tmin', 'mi', 'lat', 'vpd', 'PcumOctSep', 'summerP0', 'ddAugJul',
-					'AugMaxT', 'cwd', 'age', 'maxT', 'PPT', 'Acs', 'wd', 'MarMin',
-          'summerP0', 'OctTmin', 'summerP1', 'OctMin', 'ddAugJun', 'JanTmin',
-          'summerP2', 'max.drop', 'Pmean', 'PMarAug', 'etopo1', 'POctSep',
-          'Mar20', 'sum9_diff')
-CUBE = c('MarTmin', 'fallTmean', 'Tvar', 'JanMin', 'age', 'density', 'lon',
-        'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
-        'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff')
-
 #var <- '^Tmean|:Tmean'
 
 pred.y <- get.pred.y(preds, 'wd')
