@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
+model = 'model1'
 
 class ModelMatrixConstructor:
     def __init__(self, data_dir, test=False):
@@ -66,7 +67,7 @@ class ModelMatrixConstructor:
         for i, [X, y] in enumerate(data_sets):
             X = X.reindex()
             y = y.reindex()
-            if 'density' in list(X):
+            if 'density' in list(X) and model == 'model4':
                  X = self._fill_na(X, 'density')
                  y = y.loc[np.isnan(X['density']) == False, :]
                  X = X.loc[np.isnan(X['density']) == False, :]
