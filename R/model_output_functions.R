@@ -6,8 +6,31 @@ SQUARE = c('Tmin', 'mi', 'lat', 'vpd', 'PcumOctSep', 'summerP0', 'ddAugJul',
 CUBE = c('MarTmin', 'fallTmean', 'Tvar', 'JanMin', 'age', 'density', 'lon',
         'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
         'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff')
-
+        
+DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input'
 # functions for checking final models and 2D plots
+
+merge.files <- function(set=c('train', 'valid', 'test')) {
+  cat(sprintf('Merging %s data...\n', set))
+  all.files <- list.files(DATA_DIR)
+  X.files <- sort(all.files[grepl(paste('X', set, sep='_'), all.files)])
+  y.files <- sort(all.files[grepl(paste('y', set, sep='_'), all.files)])
+  X <- read.csv(paste(DATA_DIR, X.files[1], sep='/'))
+  y <- read.csv(paste(DATA_DIR, y.files[1], sep='/'))
+  colnames(y) <- 'btl_t'
+  data <- cbind(y, X)
+  if (length(X.files) > 1) {
+    for (i in 2:length(X.files)) {
+      next.X <- read.csv(paste(DATA_DIR, X.files[i], sep='/'))
+      next.y <- read.csv(paste(DATA_DIR, y.files[i], sep='/'))
+      colnames(next.y) <- 'btl_t'
+      next.data <- cbind(next.y, next.X)
+      data <- rbind(data, next.data)
+    }
+  }
+  data
+}
+
 get.transformed.data <- function(df){
 	# calculate squares
 	for (i in 1:length(squares)){
@@ -22,6 +45,37 @@ get.transformed.data <- function(df){
 		cat(sprintf('Calculated %s ...\n', cubes[i]))
 	}
 	return(df)
+}
+
+get.data.frame <- function(df, scale=FALSE){
+	y <- df[,'btl_t']
+	df <- df[,singles] 
+	# calculate squares
+	for (i in 1:length(squares)){
+		var <- strsplit(squares[i], "_sq")[[1]][1]
+		df[,squares[i]] <- (df[,var])^2
+		cat(sprintf('Calculated %s ...\n', squares[i]))
+	}
+	# calculate cubes
+	for (i in 1:length(cubes)){
+		var <- strsplit(cubes[i], "_cub")[[1]][1]
+		df[,cubes[i]] <- (df[,var])^3
+		cat(sprintf('Calculated %s ...\n', cubes[i]))
+	}
+	if(scale){
+		# calculate interactions
+		for( i in 1:length(interactions)){
+			v1 <- strsplit(interactions[i], ":")[[1]][1]; v2 <- strsplit(interactions[i], ":")[[1]][2]
+			df[,interactions[i]] <- df[,v1] * df[,v2]
+			cat(sprintf('Calculated %s ...\n', interactions[i]))
+		}
+		print('scaling X data...')
+		df <- scale(df)
+		colnames(df) <- gsub(":", "_", colnames(df))
+	}	
+	print('adding y data...')
+	ndf <- cbind(data.frame(btl_t=y), df)	
+	return(ndf)
 }
 
 get.more.data <- function(df){
@@ -90,9 +144,19 @@ get.x.y <- function(df, var, intercept){
 		print('There is some mistake!')
 	}
 	pred.y <- exp(y)/(1+exp(y))
-	df_3 <- data.frame(x=x, y=pred.y)
+	df_3 <- data.frame(x=df[,var], y=pred.y)
 	print(summary(pred.y))
 	return(df_3)
+}
+
+var.string <- function(){
+  for(var in coeff$predictor){
+  	if(var == coeff$predictor[length(coeff$predictor)]){
+  		cat(sprintf('%s', var))
+  	}else{
+  		cat(sprintf('%s + ', var))
+  	}
+  }
 }
 
 # functions for mapping probability
@@ -121,7 +185,7 @@ get.input <- function(year){
 	return(preds)
 }
 
-get.pred.y <- function(preds, var){
+selected.var <- function(var){
 	if(var %in% c('Tmean', 'Tmin', 'mi', 'wd')){
 		selected <- grep(paste0('^', var, '|:', var), coeff$predictor, value=TRUE)
 		if(var == 'mi'){
@@ -131,7 +195,10 @@ get.pred.y <- function(preds, var){
 		selected <- grep(var, coeff$predictor, value=TRUE)
 	}
 	print(selected)
-	
+	return(selected)
+}
+get.pred.y <- function(preds, var){
+	selected <- selected.var(var)
 	loc_variables <- grep('^lon|^lat|^etopo1', coeff$predictor, value=TRUE)	
 	preds_1 <- scale(preds[,colnames(preds)[!(colnames(preds) %in% selected)]])
 	#preds_1 <- scale(preds[,colnames(preds)[!(colnames(preds) %in% c(selected,loc_variables))]])
