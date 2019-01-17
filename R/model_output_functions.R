@@ -149,7 +149,7 @@ get.x.y <- function(df, var, intercept){
 	return(df_3)
 }
 
-var.string <- function(){
+var.string <- function(coeff){
   for(var in coeff$predictor){
   	if(var == coeff$predictor[length(coeff$predictor)]){
   		cat(sprintf('%s', var))
@@ -159,11 +159,11 @@ var.string <- function(){
   }
 }
 
-get.strings <- function(scale=FALSE){
+get.strings <- function(coeff,scale=FALSE){
 	if(scale){
-		strings <- gsub(":", "_", capture.output(var.string()))
+		strings <- gsub(":", "_", capture.output(var.string(coeff)))
 	}else{
-		strings <- capture.output(var.string())
+		strings <- capture.output(var.string(coeff))
 	}
 	return(strings)
 }
