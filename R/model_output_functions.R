@@ -159,6 +159,15 @@ var.string <- function(){
   }
 }
 
+get.strings <- function(scale=FALSE){
+	if(scale){
+		strings <- gsub(":", "_", capture.output(var.string()))
+	}else{
+		strings <- capture.output(var.string())
+	}
+	return(strings)
+}
+
 # functions for mapping probability
 get.input <- function(year){
 	input <- read.csv(paste0('/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input/input_data_',year,'.csv'))

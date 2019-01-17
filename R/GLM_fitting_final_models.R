@@ -4,7 +4,6 @@
 # model3 - model with bioclimatic variables, transformation, interactions and beetle variables
 
 path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/'
-setwd('/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input')
 source('/gpfs/projects/gavingrp/dongmeic/sdm/R/model_output_functions.R')
 
 model <- 'model3'
