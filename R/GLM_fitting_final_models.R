@@ -48,7 +48,16 @@ summary.model <- function(i){
 	predictors <- coeff$predictor[!(coeff$predictor %in% drops)]
 	coeff.m <- coeff.m[-1,]
 	for(i in 1:dim(coeff.m)[1]){
-		coeff.m$order[i] <- which(predictors==rownames(coeff.m)[i])
+		predictor <- rownames(coeff.m)[i]
+		if(predictor=='lon:etopo1:lat'){
+			predictor <- 'lon:lat:etopo1'
+		}else if(grepl(':', predictor)){
+			split <- unlist(strsplit(predictor, ':'))
+			if(split[2] %in% c('lon', 'lat', 'etopo1')){
+				predictor <- paste0(split[2], ':', split[1])
+			}
+		}
+		coeff.m$order[i] <- which(predictors==predictor)
 	}
 	coeff.m <- coeff.m[order(coeff.m$order),]
 	write.csv(coeff.m, paste0(path,model,'_coefficient.csv'), row.names=FALSE)
