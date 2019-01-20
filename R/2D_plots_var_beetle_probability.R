@@ -22,47 +22,26 @@ ptm <- proc.time()
 mod <- eval(parse(text=mod.string))
 proc.time() - ptm
 
-sink(paste0(path,model,"_summary.txt"))
-summary(mod)
-sink()
-
 vars <- c('wd', 'JanTmin', 'Acs', 'summerTmean', 'ddAugJul', 'maxAugT')
 varnms <- c('Water deficit', 'January minimum temperature', 'Average duration of cold snaps', 
 						'Mean summer temperature', 'Degree days', 'Frequency of ≥ 18.3 °C temperature in August')
 
-n.sample <- 500
-iteration <- 100
-modeled.y <- function(var, n.sample, iteration){
-	for (i in 1:iteration){
-			s.df <- ndf[sample(nrow(ndf), n.sample),]
-			y <- predict(mod, s.df, type="response")
-			if(i==1){
-					df <- data.frame(x=s.df[,var], y=y, run=rep(i, n.sample))
-					out <- df
-			}else{
-					df <- data.frame(x=s.df[,var], y=y, run=rep(i, n.sample))
-					out <- rbind(out, df)
-			}
-			print(i)
-	}
-	return(out)
-}
+n.sample <- 15000
+s.df <- ndf[sample(nrow(ndf), n.sample),]
+y <- predict(mod, s.df, type="response")
+fs <- c(0.1, 0.3, 0.3, 0.3, 0.3, 0.3)
 
 for(var in vars){
-    out <- modeled.y(var, n.sample, iteration)
-    png(paste0(outpath, var, '_2Dplot.png'), width=8, height=6, units="in", res=300)
-    p <- ggplot(data=out, aes(x=x, y=y, group=factor(run)))+ geom_point(alpha=0.3,size=0.05)+
-    geom_smooth(method = glm, se = FALSE) +
-    theme(panel.grid.major = element_blank(), 
-                panel.grid.minor = element_blank(),
-                panel.background = element_blank(), 
-                axis.line = element_line(colour = "black"), 
-                plot.title = element_text(hjust = 0.5),
-                legend.position="none")+
-    labs(x='',y='',title=varnms[which(vars==var)])
-    print(p)
-    dev.off()
-    print(paste(var, 'is done!'))
+	df <- data.frame(x=s.df[,var], y=y)
+	df <- df[order(df$x),]
+	lowessFit <-data.frame(lowess(df,f = .3,iter=1))
+	png(paste0(outpath, var, '_2Dplot.png'), width=6, height=6, units="in", res=300)
+	par(mfrow=c(1,1),xpd=FALSE,mar=c(2.5,2.5,2,1))
+	plot(df$x, df$y, pch=16, cex=0.25, col=rgb(0,0,0,0.5), main=varnms[which(vars==var)],xlab='',ylab='')
+	#lines(loessFit,lwd=2, col='blue')
+	lines(lowessFit,lwd=2, col='blue')
+	dev.off()
+	print(paste(var, 'is done!'))
 }
 
 
