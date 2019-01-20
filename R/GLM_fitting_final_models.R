@@ -43,6 +43,15 @@ summary.model <- function(i){
 	sink(paste0(path,model,"_summary.txt"))
 	print(summary(mod))
 	sink()
+	
+	coeff.m <- as.data.frame(summary(mod)$coeff)
+	predictors <- coeff$predictor[!(coeff$predictor %in% drops)]
+	coeff.m <- coeff.m[-1,]
+	for(i in 1:dim(coeff.m)[1]){
+		coeff.m$order[i] <- which(predictors==rownames(coeff.m)[i])
+	}
+	coeff.m <- coeff.m[order(coeff.m$order),]
+	write.csv(coeff.m, paste0(path,model,'_coefficient.csv'), row.names=FALSE)
 }
 
 for(i in 1:4){
