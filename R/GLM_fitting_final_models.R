@@ -22,7 +22,17 @@ summary.model <- function(i){
 		ndf <- get.data.frame(train)	
 	}
 	
-	strings <- get.strings(coeff)
+	if(i==1){
+		drops <- c('summerP2')
+	}else if(i==2){
+		drops <- c('summerP1', 'lat:summerP1', 'lon:summerP1', 'etopo1:summerP2')
+	}else if(i==3){
+		drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP2')
+	}else{
+	  drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP1', 'density:summerP1')
+	}
+	
+	strings <- get.strings(coeff, drops)
 	mod.string <- paste0('glm(btl_t ~ ', strings, ', data=ndf, family=binomial())')
 	#n.sample = 100000
 	#mod.string <- paste0('glm(btl_t ~ ', strings, ', data=ndf[sample(nrow(ndf), n.sample),], family=binomial())')
