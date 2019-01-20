@@ -49,8 +49,10 @@ summary.model <- function(i){
 	coeff.m <- coeff.m[-1,]
 	for(i in 1:dim(coeff.m)[1]){
 		predictor <- rownames(coeff.m)[i]
-		if(predictor=='lon:etopo1:lat'){
+		if(predictor=='lon:etopo1:lat' | predictor=='lat:lon:etopo1'){
 			predictor <- 'lon:lat:etopo1'
+		}else if(predictor=='sum9_t2:sum9_t1'){
+			predictor <- 'sum9_t1:sum9_t2'
 		}else if(grepl(':', predictor)){
 			split <- unlist(strsplit(predictor, ':'))
 			if(split[2] %in% c('lon', 'lat', 'etopo1')){
