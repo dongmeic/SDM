@@ -15,8 +15,9 @@ interactions <- grep(':', coeff$predictor, value=TRUE)
 singles <- coeff$predictor[!(coeff$predictor %in% c(squares, cubes, interactions))]
 
 ndf <- get.data.frame(train)
-#strings <- gsub(":", "_", capture.output(var.string(coeff)))
-strings <- capture.output(var.string(coeff))
+drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP2')
+#strings <- gsub(":", "_", capture.output(var.string(coeff, drops)))
+strings <- capture.output(var.string(coeff, drops))
 mod.string <- paste0('glm(btl_t ~ ', strings, ', data=ndf, family=binomial())')
 ptm <- proc.time()
 mod <- eval(parse(text=mod.string))
@@ -34,7 +35,7 @@ fs <- c(0.1, 0.3, 0.3, 0.3, 0.3, 0.3)
 for(var in vars){
 	df <- data.frame(x=s.df[,var], y=y)
 	df <- df[order(df$x),]
-	lowessFit <-data.frame(lowess(df,f = .3,iter=1))
+	lowessFit <-data.frame(lowess(df,f = fs[which(vars==var)],iter=1))
 	png(paste0(outpath, var, '_2Dplot.png'), width=6, height=6, units="in", res=300)
 	par(mfrow=c(1,1),xpd=FALSE,mar=c(2.5,2.5,2,1))
 	plot(df$x, df$y, pch=16, cex=0.25, col=rgb(0,0,0,0.5), main=varnms[which(vars==var)],xlab='',ylab='')
