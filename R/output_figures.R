@@ -63,4 +63,4 @@ legend(0.7, 0.3, legend=c('Model 1', 'Model 2', 'Model 3', 'Model 4'), cex=1.5,
 			col=c('blue', 'red', 'black', 'green'), box.lty=0, lty=1, lwd=lw)
 dev.off()
 
-#
+# Figure 3 - model predictions

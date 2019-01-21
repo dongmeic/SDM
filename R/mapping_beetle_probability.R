@@ -13,9 +13,8 @@ library(RColorBrewer)
 library(classInt)
 
 source('/gpfs/projects/gavingrp/dongmeic/sdm/R/model_output_functions.R')
-path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test5/'
+path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/'
 file <- 'predictions.csv'
-prob <- read.csv(paste0(path, file))
 loc <- read.csv('/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/sdm_roi_loc.csv')
 lonlat <- CRS("+proj=longlat +datum=NAD83")
 setwd('/gpfs/projects/gavingrp/dongmeic/beetle/output/maps/prob')
@@ -27,7 +26,9 @@ crs <- proj4string(us.states)
 lrglakes <- readOGR(dsn = shppath, layer = "na10km_lrglakes")
 proj4string(lrglakes) <- crs
 
-get.spdf <- function(prob, year){
+get.spdf <- function(i, year){
+	model <- paste0('model', i)
+	prob <- read.csv(paste0(path, model, '/', file))
 	df <- prob[prob$year==year,]
 	xy <- data.frame(df[,c(1,2)])
 	coordinates(xy) <- c('x', 'y')
@@ -45,8 +46,8 @@ nclr <- 5
 color <- "RdYlBu"
 plotclr <- rev(brewer.pal(nclr,color))
 
-probmapping <- function(prob, year){
-	spdf <- get.spdf(prob, year)
+probmapping <- function(i, year){
+	spdf <- get.spdf(i, year)
 	plotvar <- spdf$probs
 	class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=2)
 	colcode <- findColours(class, plotclr)
@@ -65,33 +66,37 @@ probmapping <- function(prob, year){
 
 probmapping(prob, 2000)
 
-probmapping_ts <- function(prob, outnm){
+probmapping_ts <- function(i, outnm){
 	png(paste0(outnm, ".png"), width=18, height=12, units="in", res=300)
 	par(mfrow=c(3,6),mar=c(0.5,0.5,1.5,0))
 	for (year in 1998:2015){
-		spdf <- get.spdf(prob, year)
+		spdf <- get.spdf(i, year)
 		plotvar <- spdf$probs
-		class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=2)
+		#class <- classIntervals(plotvar, nclr, style="kmeans", dataPrecision=2)
+		if(i==1){
+			class <- classIntervals(plotvar, nclr, style="fixed", fixedBreaks=c(0.01, 0.08, 0.21, 0.37, 0.55, 0.92))
+		}else if(i==2){
+			class <- classIntervals(plotvar, nclr, style="fixed", fixedBreaks=c(0.01, 0.08, 0.23, 0.40, 0.58, 0.99))
+		}else if(i==3){
+			class <- classIntervals(plotvar, nclr, style="fixed", fixedBreaks=c(0.01, 0.08, 0.27, 0.50, 0.75, 0.99))
+		}
 		colcode <- findColours(class, plotclr)
 		spdf1 <- spdf[spdf$btl_t==1,]
 		plot(spdf, col=colcode, pch=19, cex=0.1)
 		title(main=year, adj = 0.5, line = -1, cex.main=2)
-		plot(spdf1, pch=19, cex=0.1, col=rgb(0,0,1,0.1),add=T)
-		legend(-2700000, 550000,legend=names(attr(colcode, "table")),
-						 fill=attr(colcode, "palette"), title='', bty="n")
+		plot(spdf1, pch=19, cex=0.1, col=rgb(0,1,0,0.15),add=T)
+		if(year==2015){
+			legend(-2700000, 550000,legend=names(attr(colcode, "table")),
+						 fill=attr(colcode, "palette"), title='', bty="n")		
+		}
 		print(year)
 	}	
 	dev.off()
 }
 
-probmapping_ts(prob, "model_without_beetle_variables")
-path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test3/'
-prob1 <- read.csv(paste0(path, file))
-probmapping_ts(prob1, "model_with_beetle_variables")
-
-path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/test/'
-prob2 <- read.csv(paste0(path, file))
-probmapping_ts(prob2, "model_with_only_bioclm")
+probmapping_ts(2, "model_without_beetle_variables")
+probmapping_ts(3, "model_with_beetle_variables")
+probmapping_ts(1, "model_with_only_bioclm")
 
 
 year <- 1998
