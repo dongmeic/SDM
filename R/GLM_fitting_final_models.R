@@ -62,6 +62,11 @@ summary.model <- function(i){
 		coeff.m$order[i] <- which(predictors==predictor)
 	}
 	coeff.m <- coeff.m[order(coeff.m$order),]
+	coeff.m$signif <- ifelse(coeff.m[,4] < 0.001, '***', 
+											ifelse(coeff.m[,4] < 0.01, '**',
+												ifelse(coeff.m[,4] < 0.05, '*',
+													ifelse(coeff.m[,4] < 0.1, '.',
+													''))))
 	write.csv(coeff.m, paste0(path,model,'_coefficient.csv'), row.names=FALSE)
 }
 

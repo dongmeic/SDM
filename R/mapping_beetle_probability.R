@@ -42,7 +42,7 @@ proj4string(xy) <- crs
 loc.spdf <- SpatialPointsDataFrame(coords = xy, data = loc, proj4string = crs)
 
 nclr <- 5
-color <- "RdYlGn"
+color <- "RdYlBu"
 plotclr <- rev(brewer.pal(nclr,color))
 
 probmapping <- function(prob, year){
