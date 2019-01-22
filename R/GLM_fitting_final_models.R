@@ -55,6 +55,8 @@ summary.model <- function(i){
 			predictor <- 'sum9_t1:sum9_t2'
 		}else if(predictor=='sum9_diff:age'){
 			predictor <- 'age:sum9_diff'
+		}else if(predictor=='density:age'){
+			predictor <- 'age:density'
 		}else if(grepl(':', predictor)){
 			split <- unlist(strsplit(predictor, ':'))
 			if(split[2] %in% c('lon', 'lat', 'etopo1')){
