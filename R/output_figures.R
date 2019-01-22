@@ -50,6 +50,7 @@ roc.m1 <- read.csv(paste0(path, 'model1/roc.csv'))
 roc.m2 <- read.csv(paste0(path, 'model2/roc.csv'))
 roc.m3 <- read.csv(paste0(path, 'model3/roc.csv'))
 roc.m4 <- read.csv(paste0(path, 'model4/roc.csv'))
+roc.m5 <- read.csv(paste0(path, 'model5/roc.csv'))
 lw = 3
 png(paste0(out, 'roc_curve.png'), width=8, height=8, units="in", res=300)
 par(mfrow=c(1,1),mar=c(5,5,1,1))
@@ -85,9 +86,9 @@ get.spdf <- function(i, year){
 nclr <- 5
 color <- "RdYlBu"
 plotclr <- rev(brewer.pal(nclr,color))
-png('beelte_probability.png', width=15, height=12, units="in", res=300)
-par(mfrow=c(3,5),mar=c(0.5,0,1.5,0))
-for(i in 1:3){
+png('beelte_probability.png', width=15, height=16, units="in", res=300)
+par(mfrow=c(4,5),mar=c(0.5,0,1.5,0))
+for(i in 1:4){
 	for (year in seq(1998,2015,4)){
 		spdf <- get.spdf(i, year)
 		plotvar <- spdf$probs
@@ -95,9 +96,9 @@ for(i in 1:3){
 		colcode <- findColours(class, plotclr)
 		spdf1 <- spdf[spdf$btl_t==1,]
 		plot(spdf, col=colcode, pch=19, cex=0.1)
-		title(main=paste0(i, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
+		title(main=paste0('Model ', i, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
 		plot(spdf1, pch=19, cex=0.1, col=rgb(0,1,0,0.15),add=T)
-		if(i==3 & year==2014){
+		if(i==4 & year==2014){
 			legend(-2700000, 550000,legend=names(attr(colcode, "table")),
 						 fill=attr(colcode, "palette"), title='', bty="n")		
 		}
