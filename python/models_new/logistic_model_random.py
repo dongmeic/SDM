@@ -22,7 +22,7 @@ from construct_model_matrices_random import ModelMatrixConstructor
 # model3 - model with bioclimatic variables, transformation, interactions and beetle variables
 # model4 - add age and density to model3
 
-model = 'model4'
+model = 'model5'
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/' + model
 OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/' + model
@@ -34,6 +34,7 @@ def main():
     plt.rcParams['figure.figsize'] = 10, 8
     TEST = False
     dropBtl = False
+    dropVgt = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
     if model == 'model1':
@@ -42,6 +43,8 @@ def main():
     	test_vars = matrix_constructor.add_beetle_vars()
     	if model == 'model2':
     		dropBtl = True
+    	elif model != 'model5':
+    		dropVgt = True
     #test_vars = matrix_constructor.add_interactions()
     #test_vars = matrix_constructor.add_variations()
     for var in ['x', 'y', 'year']:
@@ -67,7 +70,11 @@ def main():
     if dropBtl:
     	btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
     	btl_sum9.append('vgt')
+    	btl_sum9.append('age:density')
     	drop += btl_sum9
+    if dropVgt:
+    	vgt = ['density:sum9_diff', 'age:sum9_diff', 'age:density']
+    	drop += vgt
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)
     X_test  = X_test.drop(drop, axis=1)

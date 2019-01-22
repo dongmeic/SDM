@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-model = 'model4'
+model = 'model5'
 
 class ModelMatrixConstructor:
     def __init__(self, data_dir, test=False):
@@ -21,7 +21,7 @@ class ModelMatrixConstructor:
             'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff']
         self.INTERACTIONS = ['lon:lat:etopo1', 'lon:sum9_diff', 'lat:sum9_diff', 
                              'etopo1:sum9_diff', 'density:sum9_diff', 'age:sum9_diff',
-                             'btl_t1:btl_t2', 'sum9_t1:sum9_t2']
+                             'btl_t1:btl_t2', 'sum9_t1:sum9_t2', 'age:density']
         self.DROP = ['x.new', 'y.new', 'xy']
         self.FIXED = ['lat', 'lon', 'etopo1', 'vgt', 'btl_t1', 'age', 'density',
                       'btl_t2', 'sum9_t1', 'sum9_t2', 'sum9_diff'] + self.INTERACTIONS
@@ -59,8 +59,6 @@ class ModelMatrixConstructor:
         y_train = self._load_data_set(train_y_files)
         y_valid = self._load_data_set(valid_y_files)
         y_test  = self._load_data_set(test_y_files)
-        if model != 'model4':
-        		self.DROP = ['x.new', 'y.new', 'xy', 'density:sum9_diff', 'age:sum9_diff']
         if self.DROP:
             X_train = X_train.drop(self.DROP, axis=1)
             X_valid = X_valid.drop(self.DROP, axis=1)
@@ -70,7 +68,7 @@ class ModelMatrixConstructor:
         for i, [X, y] in enumerate(data_sets):
             X = X.reindex()
             y = y.reindex()
-            if 'density' in list(X) and model == 'model4':
+            if 'density' in list(X) and model in ['model4', 'model5']:
                  X = self._fill_na(X, 'density')
                  y = y.loc[np.isnan(X['density']) == False, :]
                  X = X.loc[np.isnan(X['density']) == False, :]
