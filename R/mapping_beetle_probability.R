@@ -77,7 +77,7 @@ probmapping_ts <- function(i, outnm){
 			class <- classIntervals(plotvar, nclr, style="fixed", fixedBreaks=c(0.01, 0.08, 0.21, 0.37, 0.55, 0.92))
 		}else if(i==2){
 			class <- classIntervals(plotvar, nclr, style="fixed", fixedBreaks=c(0.01, 0.08, 0.23, 0.40, 0.58, 0.99))
-		}else if(i==3){
+		}else{
 			class <- classIntervals(plotvar, nclr, style="fixed", fixedBreaks=c(0.01, 0.08, 0.27, 0.50, 0.75, 0.99))
 		}
 		colcode <- findColours(class, plotclr)
@@ -97,6 +97,7 @@ probmapping_ts <- function(i, outnm){
 probmapping_ts(2, "model_without_beetle_variables")
 probmapping_ts(3, "model_with_beetle_variables")
 probmapping_ts(1, "model_with_only_bioclm")
+probmapping_ts(4, "model_with_age_density")
 
 
 year <- 1998

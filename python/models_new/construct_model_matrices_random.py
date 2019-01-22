@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-model = 'model1'
+model = 'model4'
 
 class ModelMatrixConstructor:
     def __init__(self, data_dir, test=False):
@@ -20,7 +20,8 @@ class ModelMatrixConstructor:
             'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
             'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff']
         self.INTERACTIONS = ['lon:lat:etopo1', 'lon:sum9_diff', 'lat:sum9_diff', 
-                             'etopo1:sum9_diff', 'btl_t1:btl_t2', 'sum9_t1:sum9_t2']
+                             'etopo1:sum9_diff', 'density:sum9_diff', 'age:sum9_diff',
+                             'btl_t1:btl_t2', 'sum9_t1:sum9_t2']
         self.DROP = ['x.new', 'y.new', 'xy']
         self.FIXED = ['lat', 'lon', 'etopo1', 'vgt', 'btl_t1', 'age', 'density',
                       'btl_t2', 'sum9_t1', 'sum9_t2', 'sum9_diff'] + self.INTERACTIONS
@@ -58,6 +59,8 @@ class ModelMatrixConstructor:
         y_train = self._load_data_set(train_y_files)
         y_valid = self._load_data_set(valid_y_files)
         y_test  = self._load_data_set(test_y_files)
+        if model != 'model4':
+        		self.DROP = ['x.new', 'y.new', 'xy', 'density:sum9_diff', 'age:sum9_diff']
         if self.DROP:
             X_train = X_train.drop(self.DROP, axis=1)
             X_valid = X_valid.drop(self.DROP, axis=1)
