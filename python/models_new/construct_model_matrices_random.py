@@ -125,8 +125,8 @@ class ModelMatrixConstructor:
     		all_vars = list(self.data_sets[0][0])
     		selected = self.get_variables(random=random)
     		all_vars = [var for var in all_vars if ':' not in var]
+    		variations = []
     		for var in selected:
-    				variations = []
     				if var in self.SQUARE:
     					variations.append(var+'_sq')
     				if var in self.CUBE:
