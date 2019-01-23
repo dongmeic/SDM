@@ -59,6 +59,7 @@ plot(roc.m1$fpr, roc.m1$tpr, lwd=lw, type='l', xlab='False positive rate (1 - Sp
 lines(roc.m2$fpr, roc.m2$tpr, lwd=lw, type='l', col='red')
 lines(roc.m3$fpr, roc.m3$tpr, lwd=lw, type='l')
 lines(roc.m4$fpr, roc.m4$tpr, lwd=lw, type='l', col=rgb(0,1,0,0.5))
+#lines(roc.m5$fpr, roc.m5$tpr, lwd=lw, type='l', col=rgb(0,0.5,0,0.5))
 lines(c(0,1), c(0,1), col='darkgrey',lwd=lw, type='l')
 legend(0.7, 0.3, legend=c('Model 1', 'Model 2', 'Model 3', 'Model 4'), cex=1.5,
 			col=c('blue', 'red', 'black', 'green'), box.lty=0, lty=1, lwd=lw)
@@ -114,7 +115,9 @@ dev.off()
 source('/gpfs/projects/gavingrp/dongmeic/sdm/R/model_output_functions.R')
 train <- merge.files('train')
 
-model <- 'model3'
+i <- 5
+model <- paste0('model', i)
+
 coeff <- read.csv(paste0(path, model,'/coefficients.csv'), stringsAsFactors = FALSE)
 squares <- grep('_sq', coeff$predictor, value=TRUE)
 cubes <- grep('_cub', coeff$predictor, value=TRUE)
@@ -122,7 +125,11 @@ interactions <- grep(':', coeff$predictor, value=TRUE)
 singles <- coeff$predictor[!(coeff$predictor %in% c(squares, cubes, interactions))]
 
 ndf <- get.data.frame(train)
-drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP2')
+if(i==3){
+	drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP2')
+}else{
+	drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP1', 'density:summerP1')
+}
 #strings <- gsub(":", "_", capture.output(var.string(coeff, drops)))
 strings <- capture.output(var.string(coeff, drops))
 mod.string <- paste0('glm(btl_t ~ ', strings, ', data=ndf, family=binomial())')
@@ -141,18 +148,40 @@ varnms <- c('Growing season (Mar - Aug) temperature', 'Annual mean temperature',
 
 n.sample <- 15000
 s.df <- ndf[sample(nrow(ndf), n.sample),]
+s.df <- s.df[complete.cases(s.df), ]
 y <- predict(mod, s.df, type="response")
 fs <- c(0.4, rep(0.3, 14), 0.1)
 
-png(paste0(out,'variable_2Dplot.png'), width=14, height=12, units="in", res=300)
+png(paste0(out,'variable_2Dplot_',i,'.png'), width=14, height=12, units="in", res=300)
 par(mfrow=c(4,4),mar=c(3.5,3.5,2,1))
 for(var in vars){
 	df <- data.frame(x=s.df[,var], y=y)
 	df <- df[order(df$x),]
-	lowessFit <-data.frame(lowess(df,f=fs[which(vars==var)],iter=1))
 	plot(df$x, df$y, pch=16, cex=0.35, col=rgb(0,0,0,0.5), main=varnms[which(vars==var)],
 				xlab='',ylab='', cex.lab=1.5, cex.axis=1.5)
-	lines(lowessFit,lwd=3, col='red')
+	lowessFit <-data.frame(lowess(df,f=fs[which(vars==var)],iter=1))
+	lines(lowessFit,lwd=3, col=rgb(1,0,0,0.8))
+	print(paste(var, 'is done!'))
+}
+dev.off()
+
+vars <- c('lon', 'lat', 'etopo1', 'age', 'density', 'age:density','density:Tmean', 
+					'density:vpd', 'density:TMarAug', 'sum9_diff', 'age:sum9_diff', 'density:sum9_diff')
+png(paste0(out,'density_2Dplot_',i,'.png'), width=15, height=16, units="in", res=300)
+par(mfrow=c(4,3),mar=c(3.5,3.5,2,2))
+for(var in vars){
+	if(grepl(':', var)){
+		split <- unlist(strsplit(var, ':'))
+		x = s.df[,split[1]]*s.df[,split[2]]
+		df <- data.frame(x=x, y=y)
+	}else{
+		df <- data.frame(x=s.df[,var], y=y)
+	}
+	df <- df[order(df$x),]
+	lowessFit <-data.frame(lowess(df,f=0.5,iter=1))
+	plot(df$x, df$y, pch=16, cex=0.35, col=rgb(0,0,0,0.5), main=var, cex.main=1.5,
+				xlab='',ylab='', cex.lab=1.5, cex.axis=1.5)
+	lines(lowessFit,lwd=3, col=rgb(1,0,0,0.8))
 	print(paste(var, 'is done!'))
 }
 dev.off()

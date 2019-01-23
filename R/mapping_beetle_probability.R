@@ -98,6 +98,7 @@ probmapping_ts(2, "model_without_beetle_variables")
 probmapping_ts(3, "model_with_beetle_variables")
 probmapping_ts(1, "model_with_only_bioclm")
 probmapping_ts(4, "model_with_age_density")
+probmapping_ts(5, "model_with_age_density_more")
 
 
 year <- 1998

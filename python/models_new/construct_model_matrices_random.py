@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-model = 'model5'
+model = 'model3'
 
 class ModelMatrixConstructor:
     def __init__(self, data_dir, test=False):
@@ -21,7 +21,8 @@ class ModelMatrixConstructor:
             'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff']
         self.INTERACTIONS = ['lon:lat:etopo1', 'lon:sum9_diff', 'lat:sum9_diff', 
                              'etopo1:sum9_diff', 'density:sum9_diff', 'age:sum9_diff',
-                             'btl_t1:btl_t2', 'sum9_t1:sum9_t2', 'age:density']
+                             'btl_t1:btl_t2', 'sum9_t1:sum9_t2', 'age:density', 
+                             'age:density:sum9_diff']
         self.DROP = ['x.new', 'y.new', 'xy']
         self.FIXED = ['lat', 'lon', 'etopo1', 'vgt', 'btl_t1', 'age', 'density',
                       'btl_t2', 'sum9_t1', 'sum9_t2', 'sum9_diff'] + self.INTERACTIONS

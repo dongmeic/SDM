@@ -69,11 +69,10 @@ def main():
     drop = ['x', 'y', 'year']
     if dropBtl:
     	btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
-    	btl_sum9.append('vgt')
-    	btl_sum9.append('age:density')
+    	btl_sum9 += ['vgt', 'age', 'density', 'age:density', 'age:density:sum9_diff']
     	drop += btl_sum9
     if dropVgt:
-    	vgt = ['density:sum9_diff', 'age:sum9_diff', 'age:density']
+    	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
     	drop += vgt
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)

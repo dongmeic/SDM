@@ -20,10 +20,12 @@ from construct_model_matrices_random import ModelMatrixConstructor
 i = sys.argv[1]
 print('iteration:', i)
 
+model = 'model3'
+
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/iter' + i
 OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/iter' + i
-REGULARIZER = 'l1'
+REGULARIZER = 'l2'
 print('Regularizer:', REGULARIZER)
 
 DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/daily/20181228/iter'
@@ -32,18 +34,25 @@ def main():
     make_dirs()
     plt.rcParams['figure.figsize'] = 10, 8
     TEST = False
+    dropBtl = False
+    dropVgt = False
     matrix_constructor = ModelMatrixConstructor(DATA_DIR, TEST)
     matrix_constructor.construct_model_matrices()
-    #test_vars = matrix_constructor.get_variables(random=True)
-    #test_vars = matrix_constructor.add_interactions(random=True)  
-    test_vars = matrix_constructor.add_variations(random=True)
+    if model == 'model1':
+    	test_vars = matrix_constructor.get_variables(random=True)
+    else:
+    	test_vars = matrix_constructor.add_beetle_vars(random=True)
+    	if model == 'model2':
+    		dropBtl = True
+    	elif model != 'model5':
+    		dropVgt = True
     for var in ['x', 'y', 'year']:
     		test_vars.append(var)
-    test_vars = sorted(test_vars)    
+    test_vars = sorted(test_vars)
     data_sets = matrix_constructor.select_variables(test_vars)
     [[X_train, y_train], [X_valid, y_valid], [X_test, y_test]] = data_sets
     for (data_set, name) in zip(data_sets, ['Train', 'Valid', 'Test']):
-        print_dims(data_set, name)
+    		print_dims(data_set, name)
     util.print_percent_presence(y_train, 'y_train')
     util.print_percent_presence(y_valid, 'y_valid')
     util.print_percent_presence(y_test, 'y_test')
@@ -57,8 +66,13 @@ def main():
     full_valid['btl_t'] = y_valid['btl_t']
     full_test['btl_t'] = y_test['btl_t']
     drop = ['x', 'y', 'year']
-#     drop = ['x', 'y', 'year', 'vgt', 'lon', 'lat', 'etopo1', 'lon_cub', 
-#     				'lat_sq', 'lat_cub', 'etopo1_sq', 'lon:lat:etopo1']
+    if dropBtl:
+    	btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
+    	btl_sum9 += ['vgt', 'age', 'density', 'age:density', 'age:density:sum9_diff']
+    	drop += btl_sum9
+    if dropVgt:
+    	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
+    	drop += vgt
     X_train = X_train.drop(drop, axis=1)
     X_valid = X_valid.drop(drop, axis=1)
     X_test  = X_test.drop(drop, axis=1)
@@ -75,7 +89,7 @@ def main():
     preds = logistic_clf.predict(X_test)
     probs = logistic_clf.predict_proba(X_test)
     accuracy = sum(y_test == preds) / len(preds)
-    print('Test accuracy:', accuracy)
+    print('Test accuracy:', accuracy)   
 
     pred_ps = logistic_clf.predict_proba(X_test)
     pred_ps = np.array([p[1] for p in pred_ps])
@@ -90,9 +104,9 @@ def main():
     cm = util.make_confusion_matrix(
             y_test, pred_ps, best_threshold['threshold'])
     metrics = util.get_metrics(cm)
-    auc_metrics = util.get_auc(y_test, pred_ps)
+    auc_metrics = util.get_auc(y_test, pred_ps, OUT_DIR)
     util.plot_roc(
-        auc_metrics['fpr'], auc_metrics['tpr'], path='%s/roc_%s.png' % (IMG_DIR, i))
+        auc_metrics['fpr'], auc_metrics['tpr'], path='%s/roc.png' % IMG_DIR)
     coefs = pd.DataFrame(
             [[pred, coef]
              for pred, coef in zip(predictors, logistic_clf.coef_[0])],
@@ -101,7 +115,7 @@ def main():
     coefs = coefs.sort_values('abs', ascending=False)
     coefs = coefs.drop(['abs'], axis=1)
     print(coefs)
-    coefs.to_csv('%s/coefficients_%s.csv' % (OUT_DIR, i), index=False)
+    coefs.to_csv('%s/coefficients.csv' % OUT_DIR, index=False)
     print('\n\nModel intercept:', logistic_clf.intercept_)
 
     pred_ps_train = logistic_clf.predict_proba(X_train)
@@ -121,7 +135,7 @@ def main():
     all_data.index = range(all_data.shape[0])
     years = sorted(full_train.year.unique())
     df = all_data[['x', 'y', 'year', 'btl_t', 'probs', 'preds']]
-    df.to_csv('%s/predictions_%s.csv' % (OUT_DIR, i), index=False)
+    df.to_csv('%s/predictions.csv' % OUT_DIR, index=False)
 
     print('\n\nGenerating prediction plots==================================')
     for year in years:
@@ -150,8 +164,8 @@ def main():
             pred_type='probs',
             plot=True,
             path='%s/prob_plot_all_%d.png' % (IMG_DIR, year))
-    print('all done!')        
-    
+    print('all done!')
+            
 def make_dirs():
     for d in [IMG_DIR, OUT_DIR]:
         if not os.path.exists(d):
@@ -179,7 +193,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid, predictors):
 		best_penalty = None
 		for C in Cs:
 				print('Testing C =', C)
-				for penalty in [REGULARIZER]:
+				for penalty in ['l1']:
 						print('  %s:' % penalty, end=' ')
 						logistic_clf = LogisticRegression(C=C, penalty=penalty, solver='saga', n_jobs=-1)
 						logistic_clf.fit(X_train, y_train)
@@ -193,7 +207,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid, predictors):
 										sig_preds.append(pred)
 										sig_coefs.append(coef)
 						print([sig_preds[i] for i in argsort(np.abs(sig_coefs))[::-1]])
-						print([sig_coefs[i] for i in argsort(np.abs(sig_coefs))[::-1]])
+						print([sig_coefs[i] for i in argsort(np.abs(sig_coefs))[::-1]])						
 						if (accuracy > best_accuracy):
 								best_C = C
 								best_accuaracy = accuracy
