@@ -126,7 +126,11 @@ class ModelMatrixConstructor:
     		selected = self.get_variables(random=random)
     		all_vars = [var for var in all_vars if ':' not in var]
     		for var in selected:
-    				variations = [v for v in all_vars if var in v]
+    				variations = []
+    				if var in self.SQUARE:
+    					variations.append(var+'_sq')
+    				if var in self.CUBE:
+    					variations.append(var+'_cub')
     				variables += variations
     		variables = list(set(variables))
     		fixed_variations = []
