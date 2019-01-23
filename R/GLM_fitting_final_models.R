@@ -51,6 +51,9 @@ summary.model <- function(i){
 		predictor <- rownames(coeff.m)[i]
 		if(predictor=='lon:etopo1:lat' | predictor=='lat:lon:etopo1'){
 			predictor <- 'lon:lat:etopo1'
+		}else if(predictor %in% c('density:sum9_diff:age','age:sum9_diff:density', 
+						'sum9_diff:age:density', 'sum9_diff:density:age', 'density:age:sum9_diff')){
+			predictor <- 'age:density:sum9_diff'
 		}else if(predictor=='sum9_t2:sum9_t1'){
 			predictor <- 'sum9_t1:sum9_t2'
 		}else if(predictor=='sum9_diff:age'){
