@@ -20,7 +20,7 @@ from construct_model_matrices_random import ModelMatrixConstructor
 i = sys.argv[1]
 print('iteration:', i)
 
-model = 'model3'
+model = 'model2'
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/iter' + i
@@ -68,8 +68,10 @@ def main():
     drop = ['x', 'y', 'year']
     if dropBtl:
     	btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
-    	btl_sum9 += ['vgt', 'age', 'density', 'age:density', 'age:density:sum9_diff']
+    	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
+    	drop += vgt
     	drop += btl_sum9
+    	drop.append('vgt')
     if dropVgt:
     	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
     	drop += vgt

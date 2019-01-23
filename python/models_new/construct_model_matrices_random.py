@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-model = 'model3'
+model = 'model2'
 
 class ModelMatrixConstructor:
     def __init__(self, data_dir, test=False):
@@ -131,7 +131,8 @@ class ModelMatrixConstructor:
     					variations.append(var+'_sq')
     				if var in self.CUBE:
     					variations.append(var+'_cub')
-    				variables += variations
+    		variables += selected
+    		variables += variations
     		variables = list(set(variables))
     		fixed_variations = []
     		for var in all_vars:
