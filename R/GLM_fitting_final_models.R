@@ -81,3 +81,6 @@ for(i in 1:4){
 	summary.model(i)
 	print(paste('printed the summary for', model))
 }
+
+library(fmsb)
+NagelkerkeR2(mod)
