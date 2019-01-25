@@ -20,7 +20,7 @@ from construct_model_matrices_random import ModelMatrixConstructor
 i = sys.argv[1]
 print('iteration:', i)
 
-model = 'model2'
+model = 'model1'
 
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/iter' + i

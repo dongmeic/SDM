@@ -251,7 +251,7 @@ gam.random <- function(iters){
     mod <- gam.sample(80000,'te')
     png(paste0('GAM_plot_', i,'.png'), width=12, height=16, units="in", res=300)
     par(mfrow=c(4, 3), mar=c(5,5,2,1))
-    plot(mod, cex.lab=1.5, cex.axis=1.5,lwd=3)
+    plot(mod, cex.lab=1.5, cex.axis=1.5,lwd=3) #rug=T, residuals = T
     dev.off()
   }
 }
