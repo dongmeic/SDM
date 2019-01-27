@@ -26,7 +26,7 @@ model = 'model5'
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/' + model
 OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/' + model
-REGULARIZER = 'l2'
+REGULARIZER = 'l1'
 print('Regularizer:', REGULARIZER)
 
 def main():
@@ -69,7 +69,8 @@ def main():
     drop = ['x', 'y', 'year']
     if dropBtl:
     	btl_sum9 = [var for var in list(X_train) if 'btl' in var or 'sum9' in var]
-    	btl_sum9 += ['vgt', 'age', 'density', 'age:density', 'age:density:sum9_diff']
+    	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
+    	drop += vgt
     	drop += btl_sum9
     if dropVgt:
     	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
@@ -194,7 +195,7 @@ def get_best_C(X_train, y_train, X_valid, y_valid, predictors):
 		best_penalty = None
 		for C in Cs:
 				print('Testing C =', C)
-				for penalty in ['l1']:
+				for penalty in [REGULARIZER]:
 						print('  %s:' % penalty, end=' ')
 						logistic_clf = LogisticRegression(C=C, penalty=penalty, solver='saga', n_jobs=-1)
 						logistic_clf.fit(X_train, y_train)
