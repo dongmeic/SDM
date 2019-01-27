@@ -85,6 +85,8 @@ probmapping_ts <- function(i, outnm){
 		plot(spdf, col=colcode, pch=19, cex=0.1)
 		title(main=year, adj = 0.5, line = -1, cex.main=2)
 		plot(spdf1, pch=19, cex=0.1, col=rgb(0,1,0,0.15),add=T)
+		plot(canada.prov, col=rgb(0.7,0.7,0.7,0.7), cex=0.3, add=T)
+		plot(us.states, col=rgb(0.7,0.7,0.7,0.7), cex=0.3, add=T)
 		if(year==2015){
 			legend(-2700000, 550000,legend=names(attr(colcode, "table")),
 						 fill=attr(colcode, "palette"), title='', bty="n")		
