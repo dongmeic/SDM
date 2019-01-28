@@ -22,7 +22,7 @@ from construct_model_matrices_random import ModelMatrixConstructor
 # model3 - model with bioclimatic variables, transformation, interactions and beetle variables
 # model4 - add age and density to model3
 
-model = 'model5'
+model = 'model2'
 DATA_DIR = '/gpfs/projects/gavingrp/dongmeic/sdm/data/Xy_random_split_data'
 IMG_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/plots/images/' + model
 OUT_DIR = '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/' + model
@@ -72,6 +72,7 @@ def main():
     	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
     	drop += vgt
     	drop += btl_sum9
+    	drop.append('vgt')
     if dropVgt:
     	vgt = [var for var in list(X_train) if 'age' in var or 'density' in var]
     	drop += vgt

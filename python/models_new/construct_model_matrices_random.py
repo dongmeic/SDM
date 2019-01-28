@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-model = 'model5'
+model = 'model2'
 
 class ModelMatrixConstructor:
     def __init__(self, data_dir, test=False):
