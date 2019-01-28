@@ -66,7 +66,6 @@ legend(0.7, 0.3, legend=c('Model 1', 'Model 2', 'Model 3', 'Model 4'), cex=1.5,
 dev.off()
 
 # Figure 3 - model predictions
-# selected years - 1998, 2002, 2006
 path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/'
 setwd('/gpfs/projects/gavingrp/dongmeic/beetle/output/maps/prob')
 file <- 'predictions.csv'
