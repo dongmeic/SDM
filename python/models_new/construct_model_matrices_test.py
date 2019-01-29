@@ -93,9 +93,9 @@ class ModelMatrixConstructor:
         for var in selected:
             variations = []
             if var in self.SQUARE:
-                variations.append(var)
+                variations.append(var+'_sq')
             if var in self.CUBE:
-                variations.append(var)
+                variations.append(var+'_cub')
             variables += variations
             variables = list(set(variables))
         fixed_variations = []
