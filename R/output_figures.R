@@ -156,44 +156,42 @@ par(mfrow=c(4,4),mar=c(3.5,3.5,2,1))
 for(var in vars){
 	df <- data.frame(x=s.df[,var], y=y)
 	df <- df[order(df$x),]
-	upper <- quantile(df$y, 0.975)
-	lower <- quantile(df$y, 0.025)
+	#add.CI.lines(df$x, df$y, f=fs[which(vars==var)])
 	plot(df$x, df$y, pch=16, cex=0.35, col=rgb(0,0,0,0.5), main=varnms[which(vars==var)],
-				xlab='',ylab='', cex.lab=1.5, cex.axis=1.5)
+							xlab='',ylab='', cex.lab=1.5, cex.axis=1.5)
 	#lowessFit <-data.frame(lowess(df,f=fs[which(vars==var)],iter=1))
 	#lines(lowessFit,lwd=3, col=rgb(1,0,0,0.8))
 	lines(lowess(df$y ~ df$x, f=fs[which(vars==var)]), lwd=3, col=rgb(1,0,0,0.8))
-	lines(lowess(df$y[df$y < upper] ~ df$x[df$y < upper]), lwd=1.5, col=4, lty='dashed')
-	lines(lowess(df$y[df$y > lower] ~ df$x[df$y > lower]), lwd=1.5, col=4, lty='dashed')
 	print(paste(var, 'is done!'))
 }
 dev.off()
 
-segments <- 10
-x.ranges <- seq(min(x), max(x), length=segments + 1)
-x.no.lower.out <- c()
-x.no.upper.out <- c()
-y.no.lower.out <- c()
-y.no.upper.out <- c()
-for (seg in 1:segments) {
-  xs <- x[x >= x.ranges[seg] & x < x.ranges[seg + 1]]
-  ys <- y[x >= x.ranges[seg] & x < x.ranges[seg + 1]]
-  upper <- quantile(ys, probs=0.8)
-  lower <- quantile(ys, probs=0.2)
-  y.no.upper <- ys[ys < upper]
-  x.no.upper <- xs[ys < upper]
-  y.no.lower <- ys[ys > lower]
-  x.no.lower <- xs[ys > lower]
-  #cat(length(x.no.lower), length(y.no.lower), '\n')
-  x.no.lower.out <- c(x.no.lower.out, x.no.lower)
-  x.no.upper.out <- c(x.no.upper.out, x.no.upper)
-  y.no.lower.out <- c(y.no.lower.out, y.no.lower)
-  y.no.upper.out <- c(y.no.upper.out, y.no.upper)
+add.CI.lines <- function(x, y, segments=50, f){
+	x.ranges <- seq(min(x), max(x), length=segments + 1)
+	x.no.lower.out <- c()
+	x.no.upper.out <- c()
+	y.no.lower.out <- c()
+	y.no.upper.out <- c()
+	for (seg in 1:segments) {
+		xs <- x[x >= x.ranges[seg] & x < x.ranges[seg + 1]]
+		ys <- y[x >= x.ranges[seg] & x < x.ranges[seg + 1]]
+		upper <- quantile(ys, probs=0.9)
+		lower <- quantile(ys, probs=0.1)
+		y.no.upper <- ys[ys < upper]
+		x.no.upper <- xs[ys < upper]
+		y.no.lower <- ys[ys > lower]
+		x.no.lower <- xs[ys > lower]
+		#cat(length(x.no.lower), length(y.no.lower), '\n')
+		x.no.lower.out <- c(x.no.lower.out, x.no.lower)
+		x.no.upper.out <- c(x.no.upper.out, x.no.upper)
+		y.no.lower.out <- c(y.no.lower.out, y.no.lower)
+		y.no.upper.out <- c(y.no.upper.out, y.no.upper)
+	}
+	plot(y ~ x, pch=16, cex=0.35, col=rgb(0, 0, 0, 0.3))
+	lines(lowess(y ~ x, f=f), col=2)
+	lines(lowess(y.no.upper.out ~ x.no.upper.out), lwd=1.5, col=4, lty='dashed')
+	lines(lowess(y.no.lower.out ~ x.no.lower.out), lwd=1.5, col=4, lty='dashed')
 }
-plot(y ~ x, pch=16, col=rgb(0, 0, 0, 0.3))
-lines(lowess(y ~ x), col=2)
-lines(lowess(y.no.upper.out ~ x.no.upper.out), col=4)
-lines(lowess(y.no.lower.out ~ x.no.lower.out), col=4)
 
 vars <- c('lon', 'lat', 'etopo1', 'age', 'density', 'age:density','density:Tmean', 
 					'density:vpd', 'density:TMarAug', 'sum9_diff', 'age:sum9_diff', 'density:sum9_diff')
