@@ -74,7 +74,7 @@ summary.model <- function(i){
 												ifelse(coeff.m[,4] < 0.05, '*',
 													ifelse(coeff.m[,4] < 0.1, '.',
 													''))))
-	write.csv(coeff.m, paste0(path,model,'_coefficient.csv'), row.names=FALSE)
+	write.csv(coeff.m, paste0(path,model,'_coefficient.csv'), row.names=TRUE)
 }
 
 for(i in 1:4){

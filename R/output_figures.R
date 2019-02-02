@@ -156,13 +156,26 @@ par(mfrow=c(4,4),mar=c(3.5,3.5,2,1))
 for(var in vars){
 	df <- data.frame(x=s.df[,var], y=y)
 	df <- df[order(df$x),]
+	upper <- quantile(df$y, 0.975)
+	lower <- quantile(df$y, 0.025)
 	plot(df$x, df$y, pch=16, cex=0.35, col=rgb(0,0,0,0.5), main=varnms[which(vars==var)],
 				xlab='',ylab='', cex.lab=1.5, cex.axis=1.5)
-	lowessFit <-data.frame(lowess(df,f=fs[which(vars==var)],iter=1))
-	lines(lowessFit,lwd=3, col=rgb(1,0,0,0.8))
+	#lowessFit <-data.frame(lowess(df,f=fs[which(vars==var)],iter=1))
+	#lines(lowessFit,lwd=3, col=rgb(1,0,0,0.8))
+	lowess(df$y ~ df$x, lwd=3, col=rgb(1,0,0,0.8))
+	lines(lowess(df$y[df$y < upper] ~ df$x[df$y < upper]), lwd=1.5, col=rgb(1,0,0,0.8), lty='dashed')
+	lines(lowess(df$y[df$y > lower] ~ df$x[df$y > lower]), lwd=1.5, col=rgb(1,0,0,0.8), lty='dashed')
 	print(paste(var, 'is done!'))
 }
 dev.off()
+
+(upper <- quantile(y, probs=0.975))
+(lower <- quantile(y, probs=0.025))
+
+plot(y ~ x, pch=16, col=rgb(0, 0, 0, 0.3))
+lines(lowess(y ~ x), col=2)
+lines(lowess(y[y < upper] ~ x[y < upper]), col = 4)
+lines(lowess(y[y > lower] ~ x[y > lower]), col = 4)
 
 vars <- c('lon', 'lat', 'etopo1', 'age', 'density', 'age:density','density:Tmean', 
 					'density:vpd', 'density:TMarAug', 'sum9_diff', 'age:sum9_diff', 'density:sum9_diff')
