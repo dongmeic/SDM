@@ -118,13 +118,22 @@ i <- 5
 model <- paste0('model', i)
 
 coeff <- read.csv(paste0(path, model,'/coefficients.csv'), stringsAsFactors = FALSE)
-squares <- grep('_sq', coeff$predictor, value=TRUE)
-cubes <- grep('_cub', coeff$predictor, value=TRUE)
-interactions <- grep(':', coeff$predictor, value=TRUE)
-singles <- coeff$predictor[!(coeff$predictor %in% c(squares, cubes, interactions))]
+if(i==1){
+	ndf <- train[,-which(colnames(train) %in% c("x", "y", "x.new", "y.new", "xy"))]
+}else{		
+	squares <- grep('_sq', coeff$predictor, value=TRUE)
+	cubes <- grep('_cub', coeff$predictor, value=TRUE)
+	interactions <- grep(':', coeff$predictor, value=TRUE)
+	singles <- coeff$predictor[!(coeff$predictor %in% c(squares, cubes, interactions))]
+	ndf <- get.data.frame(train)	
+}
 
-ndf <- get.data.frame(train)
-if(i==3){
+#ndf <- get.data.frame(train)
+if(i==1){
+	drops <- c('summerP2')
+}else if(i==2){
+	drops <- c('summerP1', 'lat:summerP1', 'lon:summerP1', 'etopo1:summerP2')
+}else if(i==3){
 	drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP2')
 }else{
 	drops <- c('sum9_t1', 'summerP2', 'lon:summerP1', 'lat:summerP0', 'etopo1:summerP1', 'density:summerP1')
@@ -159,9 +168,9 @@ for(var in vars){
 	#add.CI.lines(df$x, df$y, f=fs[which(vars==var)])
 	plot(df$x, df$y, pch=16, cex=0.35, col=rgb(0,0,0,0.5), main=varnms[which(vars==var)],
 							xlab='',ylab='', cex.lab=1.5, cex.axis=1.5)
-	#lowessFit <-data.frame(lowess(df,f=fs[which(vars==var)],iter=1))
-	#lines(lowessFit,lwd=3, col=rgb(1,0,0,0.8))
-	lines(lowess(df$y ~ df$x, f=fs[which(vars==var)]), lwd=3, col=rgb(1,0,0,0.8))
+	lowessFit <-data.frame(lowess(df,f=fs[which(vars==var)],iter=1))
+	lines(lowessFit,lwd=3, col=rgb(1,0,0,0.8))
+	#lines(lowess(df$y ~ df$x), lwd=3, col=rgb(1,0,0,0.8))
 	print(paste(var, 'is done!'))
 }
 dev.off()
