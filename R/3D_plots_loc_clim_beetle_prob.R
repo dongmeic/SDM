@@ -34,6 +34,17 @@ y <- predict(mod, s.df, type="response")
 df <- cbind(s.df, data.frame(prob=y))
 df <- df[df$prob > 0.543,]
 colors <- brewer.pal(n=9, name="YlOrRd")
-scatter3D(df$lon, df$lat, df$etopo1, colvar = df$prob, phi = 0, bty ="g", pch=19, cex=0.5, col=colors)
+scatter3D(df$lon, df$lat, df$etopo1, xlab='Longitude', ylab='Latitude', zlab='Elevation', 
+					colvar = df$prob, phi = 0, bty ="g", pch=19, cex=0.5, col=colors)
+					
+scatter3d(x = df$lon, y = df$lat, z = df$etopo1, groups = as.factor(df$btl_t),
+          grid = FALSE, fit = "smooth")					
+
+plot3D <- function(xvar, yvar, zvar, xlab, ylab, zlab){
+	scatter3D(df[,xvar], df[,yvar], df[,zvar], xlab=xlab, ylab=ylab, zlab=zlab, 
+					colvar = df$prob, phi = 0, bty ="g", pch=19, cex=0.5, col=colors)
+}
+
+plotf3D('age', 'density', 'sum9_diff', )
 
 
