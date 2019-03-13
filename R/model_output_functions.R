@@ -7,11 +7,8 @@ CUBE = c('MarTmin', 'fallTmean', 'Tvar', 'JanMin', 'age', 'density', 'lon',
         'TOctSep', 'OptTsum', 'minT', 'AugTmax', 'AugTmean', 'lat', 'Tmean',
         'winterMin', 'TMarAug', 'summerTmean', 'Jan20', 'sum9_diff')
         
-if(grepl('gpfs', getwd())){
-	DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input'
-}else{
-	csvpath <- "/Users/dongmeichen/GitHub/SDM/data/Xy_random_split_data"
-}
+DATA_DIR <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/input'
+
 # functions for checking final models and 2D plots
 
 merge.files <- function(set=c('train', 'valid', 'test')) {
