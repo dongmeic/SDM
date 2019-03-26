@@ -148,11 +148,11 @@ get.spdf <- function(i, year){
 	return(spdf)
 }
 nclr <- 5
-color <- "RdYlBu"
-plotclr <- rev(brewer.pal(nclr,color))
+color <- "GnBu"
+plotclr <- brewer.pal(nclr,color)
 png('beelte_probability.png', width=15, height=16, units="in", res=300)
 par(mfrow=c(4,5),mar=c(0.5,0,1.5,0))
-for(i in 1:4){
+for(i in c(1:3,5)){
 	for (year in seq(1998,2015,4)){
 		spdf <- get.spdf(i, year)
 		plotvar <- spdf$probs
@@ -160,8 +160,12 @@ for(i in 1:4){
 		colcode <- findColours(class, plotclr)
 		spdf1 <- spdf[spdf$btl_t==1,]
 		plot(spdf, col=colcode, pch=19, cex=0.1)
-		title(main=paste0('Model ', i, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
-		plot(spdf1, pch=19, cex=0.1, col=rgb(0,1,0,0.15),add=T)
+		if(i==5){
+			title(main=paste0('Model ', i-1, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
+		}else{
+			title(main=paste0('Model ', i, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
+		}
+		plot(spdf1, pch=19, cex=0.05, col=rgb(1,0,0,0.25),add=T)
 		if(i==4 & year==2014){
 			legend(-2700000, 550000,legend=names(attr(colcode, "table")),
 						 fill=attr(colcode, "palette"), title='', bty="n")		

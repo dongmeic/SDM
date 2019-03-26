@@ -43,8 +43,8 @@ proj4string(xy) <- crs
 loc.spdf <- SpatialPointsDataFrame(coords = xy, data = loc, proj4string = crs)
 
 nclr <- 5
-color <- "RdYlBu"
-plotclr <- rev(brewer.pal(nclr,color))
+color <- "GnBu"
+plotclr <- brewer.pal(nclr,color)
 
 probmapping <- function(i, year){
 	spdf <- get.spdf(i, year)
@@ -84,7 +84,7 @@ probmapping_ts <- function(i, outnm){
 		spdf1 <- spdf[spdf$btl_t==1,]
 		plot(spdf, col=colcode, pch=19, cex=0.1)
 		title(main=year, adj = 0.5, line = -1, cex.main=2)
-		plot(spdf1, pch=19, cex=0.1, col=rgb(0,1,0,0.15),add=T)
+		plot(spdf1, pch=19, cex=0.05, col=rgb(1,0,0,0.25),add=T)
 		plot(canada.prov, col=rgb(0.7,0.7,0.7,0.7), cex=0.3, add=T)
 		plot(us.states, col=rgb(0.7,0.7,0.7,0.7), cex=0.3, add=T)
 		if(year==2015){
