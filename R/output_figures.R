@@ -2,6 +2,8 @@ library(rgdal)
 library(RColorBrewer)
 library(classInt)
 library(ggplot2)
+library(raster)
+library(ncdf4)
 library(mgcv)
 
 path <- '/gpfs/projects/gavingrp/dongmeic/beetle/output/tables/'
@@ -11,6 +13,30 @@ year <- 2009
 train <- read.csv(paste0(path, 'input/X_train_', year, '.csv'))
 valid <- read.csv(paste0(path, 'input/X_valid_', year, '.csv'))
 test <- read.csv(paste0(path, 'input/X_test_', year, '.csv'))
+
+btlprs <- read.csv(paste0(path, "beetle_presence_updated.csv"))
+tree <- read.csv(paste0(path, "stand_age_density.csv"))
+loc <- read.csv(paste0(path,"location.csv"))
+bd <- btlprs[btlprs$allyears==1,]
+loc.bd <- loc[loc$lon >= range(bd$lon)[1] & loc$lon <= range(bd$lon)[2] & loc$lat >= range(bd$lat)[1] & loc$lat <= range(bd$lat)[2],]
+x.min <- min(loc.bd$x); y.min <- min(loc.bd$y); x.max <- max(loc.bd$x); y.max <- max(loc.bd$y)
+
+var <- 'Acs'
+inpath <- "/gpfs/projects/gavingrp/dongmeic/beetle/ncfiles/na10km_v2/ts/var/"
+years <- 1996:2015; nyr <- length(years)
+ncfile <- paste0("daily/na10km_v2_daymet_na_",var, "_",years[1],".",years[nyr],".3d.nc")
+
+r <- raster(paste0(inpath, ncfile), varname = var)
+na10km.nc <- "/gpfs/projects/gavingrp/dongmeic/beetle/ncfiles/na10km_v2/na10km_v2.nc"
+ncin <- nc_open(na10km.nc)
+na10km.prj <- ncatt_get(ncin,"lambert_azimuthal_equal_area","CRS.PROJ.4")$value
+na10km.pts.r <- raster(na10km.nc, varname = "etopo1")
+proj4string(r) <- CRS(na10km.prj)
+rmean <- calc(r, mean)
+
+dt <- cbind(loc, btlprs[,"allyears"], tree[, c("age", "density")])
+colnames(dt)[7] <- "beetle"
+ndf <- dt[dt$lon >= range(bd$lon)[1] & dt$lon <= range(bd$lon)[2] & dt$lat >= range(bd$lat)[1] & dt$lat <= range(bd$lat)[2],]
 
 shppath <- "/gpfs/projects/gavingrp/dongmeic/beetle/shapefiles"
 canada.prov <- readOGR(dsn = shppath, layer = "na10km_can_prov")
@@ -31,9 +57,47 @@ train.spdf <- get.spdf(train)
 valid.spdf <- get.spdf(valid)
 test.spdf <- get.spdf(test)
 
+spdf <- get.spdf(ndf)
+age <- rasterize(spdf, na10km.pts.r, 'age', fun=mean, na.rm=TRUE)
+proj4string(age) <- CRS(na10km.prj)
+density <- rasterize(spdf, na10km.pts.r, 'density', fun=mean, na.rm=TRUE)
+proj4string(density) <- CRS(na10km.prj)
+
 # Figure 1 - study extent and sampling blocks
 png(paste0(out, 'sampling.png'), width=9, height=5, units="in", res=300)
 par(mfrow=c(1,3),mar=c(0.5,0.5,1.5,0))
+plot(train.spdf, col='darkgrey', main='Training', pch=19, cex=0.1, cex.main=1.5)
+plot(canada.prov, col=rgb(0,0,0,0.9), add=T)
+plot(us.states, col=rgb(0,0,0,0.9), add=T)
+plot(valid.spdf, col='darkgrey', main='Validation', pch=19, cex=0.1, cex.main=1.5)
+plot(canada.prov, col=rgb(0.7,0.7,0.7,0.7), add=T)
+plot(us.states, col=rgb(0.7,0.7,0.7,0.7), add=T)
+plot(test.spdf, col='darkgrey', main='Test', pch=19, cex=0.1, cex.main=1.5)
+plot(canada.prov, col=rgb(0.7,0.7,0.7,0.7), add=T)
+plot(us.states, col=rgb(0.7,0.7,0.7,0.7), add=T)
+dev.off()
+
+# modify Figure 1 with more maps
+png(paste0(out, 'sampling_2.png'), width=9, height=10, units="in", res=300)
+par(mfrow=c(2,3),mar=c(0.5,0.5,1.5,0))
+cutpts <- c(0,2,4,6,8,10,20,40,60,90)
+plot(rmean, xlim=c(-2050000,20000), ylim=c(-2000000,1600000), breaks=cutpts, legend = FALSE,
+		 main='Average duration of cold snaps', col=brewer.pal(9,"GnBu"), axes = FALSE, box = FALSE)
+plot(spdf[spdf$beetle==1,], cex=0.05, pch=19, col=rgb(1, 0, 0, 0.1), add=T)
+plot(canada.prov, col=rgb(0,0,0,0.9), add=T)
+plot(us.states, col=rgb(0,0,0,0.9), add=T)
+cutpts <- c(0,40,80,100,150,200,400,600,705)
+plot(age, xlim=c(-2050000,20000), ylim=c(-2000000,1600000), breaks=cutpts, legend = FALSE,
+		 main='Stand age', col=brewer.pal(9,"GnBu"), axes = FALSE, box = FALSE)
+plot(spdf[spdf$beetle==1,], cex=0.05, pch=19, col=rgb(1, 0, 0, 0.1), add=T)
+plot(canada.prov, col=rgb(0,0,0,0.9), add=T)
+plot(us.states, col=rgb(0,0,0,0.9), add=T)
+cutpts <- c(0,3000,9000,15000,20000,60000,100000,200000,250000)
+plot(density, xlim=c(-2050000,20000), ylim=c(-2000000,1600000), breaks=cutpts, legend = FALSE,
+		 main='Tree density', col=brewer.pal(9,"GnBu"), axes = FALSE, box = FALSE)
+plot(spdf[spdf$beetle==1,], cex=0.05, pch=19, col=rgb(1, 0, 0, 0.1), add=T)
+plot(canada.prov, col=rgb(0,0,0,0.9), add=T)
+plot(us.states, col=rgb(0,0,0,0.9), add=T)
 plot(train.spdf, col='darkgrey', main='Training', pch=19, cex=0.1, cex.main=1.5)
 plot(canada.prov, col=rgb(0,0,0,0.9), add=T)
 plot(us.states, col=rgb(0,0,0,0.9), add=T)
