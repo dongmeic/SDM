@@ -166,7 +166,7 @@ for(i in c(1:3,5)){
 			title(main=paste0('Model ', i, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
 		}
 		plot(spdf1, pch=19, cex=0.05, col=rgb(1,0,0,0.25),add=T)
-		if(i==4 & year==2014){
+		if(i==5 & year==2014){
 			legend(-2700000, 550000,legend=names(attr(colcode, "table")),
 						 fill=attr(colcode, "palette"), title='', bty="n")		
 		}
