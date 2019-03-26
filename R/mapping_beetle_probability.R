@@ -102,7 +102,6 @@ probmapping_ts(1, "model_with_only_bioclm")
 probmapping_ts(4, "model_with_age_density")
 probmapping_ts(5, "model_with_age_density_more")
 
-
 year <- 1998
 
 get.spdf.btl <- function(year){
