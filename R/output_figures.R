@@ -176,6 +176,32 @@ for(i in c(1:3,5)){
 }
 dev.off()
 
+# add accuracy
+nclr <- 3
+plotclr <- c('#440154','#208F8B','#FDE724')
+
+png('beelte_probability_accuracy.png', width=12, height=16, units="in", res=300)
+par(mfrow=c(4,5),mar=c(0.5,0,1.5,0))
+for(i in c(1:3,5)){
+	for (year in seq(1998,2015,4)){
+		spdf <- get.spdf(i, year)
+		spdf$error <- spdf$preds - spdf$btl_t
+		plotvar <- spdf$error
+		class <- classIntervals(plotvar, nclr, style="equal")
+		colcode <- findColours(class, plotclr)
+		plot(spdf, col=colcode, pch=19, cex=0.05)
+		if(i==5){
+			title(main=paste0('Model ', i-1, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
+		}else{
+			title(main=paste0('Model ', i, ': ' ,year), adj = 0.5, line = -1, cex.main=2)
+		}
+		print(year)
+	}
+	print(i)
+}
+dev.off()
+
+
 # Figure 4 - bioclimatic variables and beetle probability
 # variables - TMarAug, AugTmean, Tmean, JanTmin, vpd, Jan20, maxAugT, cwd, minT, 
 # JanMin, fallTmean, summerTmean, Acs, mi, OctMin, PMarAug, OctTmin, Tvar
