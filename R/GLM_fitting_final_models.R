@@ -22,6 +22,9 @@ summary.model <- function(i){
 		ndf <- get.data.frame(train)	
 	}
 	
+	# vif
+	vif(ndf[,-1])
+	
 	if(i==1){
 		drops <- c('summerP2')
 	}else if(i==2){
